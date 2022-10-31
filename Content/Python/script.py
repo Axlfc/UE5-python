@@ -1,10 +1,15 @@
 import unreal
 import sys
 import os
+<<<<<<< HEAD
+import socket
+import magic
+=======
 # import subprocess
 import pkg_resources
 import socket
 
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
 
 EAL = unreal.EditorAssetLibrary
 # EUL = unreal.EditorUtilityLibrary
@@ -93,7 +98,14 @@ def get_asset_class(classtype):
     return assets
 
 
+<<<<<<< HEAD
+# assetClasses = ["SoundWave", "Material", "MaterialInstanceConstant", "MaterialFunction", "Texture2D", "StaticMesh",
+# "SkeletalMesh", "ObjectRedirector", "PhysicsAsset", "Skeleton", "UserDefinedEnum", "TextureRenderTarget2D",
+# "Blueprint", "SoundCue", "WidgetBlueprint", "HapticFeedbackEffect_Curve", "MapBuildDataRegistry",
+# "NiagaraParameterCollection", "NiagaraSystem"]
+=======
 # assetClasses = ["SoundWave", "Material", "MaterialInstanceConstant", "MaterialFunction", "Texture2D", "StaticMesh", "SkeletalMesh", "ObjectRedirector", "PhysicsAsset", "Skeleton", "UserDefinedEnum", "TextureRenderTarget2D", "Blueprint", "SoundCue", "WidgetBlueprint", "HapticFeedbackEffect_Curve", "MapBuildDataRegistry", "NiagaraParameterCollection", "NiagaraSystem"]
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
 
 soundWaveActors = get_asset_class("SoundWave")
 materialActors = get_asset_class("Material")
@@ -157,7 +169,12 @@ def get_staticmesh_lod_data():
             
             for j in range(numsections):
                 sectiondata = PML.get_section_from_static_mesh(staticMesh, i, j)
+<<<<<<< HEAD
+                # print(str(staticMesh.get_name()) + " has " + str(len(sectiondata[0])) + " vertices, ",
+                # str(int(len(sectiondata[1])/3)) + " triangles in LOD (" + str(i) + ")" )
+=======
                 # print(str(staticMesh.get_name()) + " has " + str(len(sectiondata[0])) + " vertices, " + str(int(len(sectiondata[1])/3)) + " triangles in LOD (" + str(i) + ")" )
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
                 lodtricount += len(sectiondata[1])/3
             staticmeshtricount.append(int(lodtricount))
         staticmeshreductions = [100]
@@ -172,7 +189,12 @@ def get_staticmesh_lod_data():
                 warning("No LOD assigned to " + str(staticMesh.get_name()) + " using LOD 0")
                 loddata = staticMesh.get_name(), staticmeshtricount[0]
             staticmeshlod.append(loddata)
+<<<<<<< HEAD
+        # print(str(staticMesh.get_name()) + " LOD triangles:\t" + str(staticmeshtricount),
+        # " with " + str(staticmeshreductions) + "% reductions")
+=======
         # print(str(staticMesh.get_name()) + " LOD triangles:\t" + str(staticmeshtricount) + " with " + str(staticmeshreductions) + "% reductions")
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
 
         return staticmeshlod
 
@@ -271,6 +293,14 @@ def cast(objecttocast=None, objectclass=None):
         return None
 
 
+<<<<<<< HEAD
+# For mimetypes we use python-magic-bin
+
+mime = magic.Magic(mime=True)
+
+
+def build_import_task(filename, destination_path, destination_name, options=None):
+=======
 # Description: With this function we generate a string to upgrade pip package manager of python3 unreal.
 
 def pip_upgrade(package):
@@ -309,6 +339,7 @@ mime = magic.Magic(mime=True)
 
 
 def build_import_task(filename, destination_path, destination_name):
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
     task = unreal.AssetImportTask()
     task.set_editor_property('automated', False)
     task.set_editor_property('destination_name', destination_name)
@@ -316,6 +347,195 @@ def build_import_task(filename, destination_path, destination_name):
     task.set_editor_property('filename', filename)
     task.set_editor_property('replace_existing', False)
     task.set_editor_property('save', False)
+<<<<<<< HEAD
+    task.set_editor_property('options', options)
+    return task
+
+
+def build_staticmesh_import_options():
+    options = unreal.FbxImportUI()
+    options.set_editor_property("import_mesh", True)
+    options.set_editor_property("import_textures", False)
+    options.set_editor_property("import_materials", True)
+    options.set_editor_property("import_as_skeletal", False)  # StaticMesh
+    options.static_mesh_import_data.set_editor_property("import_translation", unreal.Vector(0.0, 0.0, 0.0))
+    options.static_mesh_import_data.set_editor_property("import_rotation", unreal.Rotator(0.0, 0.0, 0.0))
+    options.static_mesh_import_data.set_editor_property("import_uniform_scale", 1.0)
+    options.static_mesh_import_data.set_editor_property("combine_meshes", True)
+    options.static_mesh_import_data.set_editor_property("generate_lightmap_u_vs", True)
+    options.static_mesh_import_data.set_editor_property("auto_generate_collision", True)
+    return options
+
+
+def build_skeletalmesh_import_options():
+    options = unreal.FbxImportUI()
+    options.set_editor_property("import_mesh", True)
+    options.set_editor_property("import_textures", True)
+    options.set_editor_property("import_materials", True)
+    options.set_editor_property("import_as_skeletal", True)  # SkeletalMesh
+    options.skeletal_mesh_import_data.set_editor_property("import_translation", unreal.Vector(0.0, 0.0, 0.0))
+    options.skeletal_mesh_import_data.set_editor_property("import_rotation", unreal.Rotator(0.0, 0.0, 0.0))
+    options.skeletal_mesh_import_data.set_editor_property("import_uniform_scale", 1.0)
+    options.skeletal_mesh_import_data.set_editor_property("import_morph_targets", True)
+    options.skeletal_mesh_import_data.set_editor_property("update_skeleton_reference_pose", False)
+    return options
+
+
+def build_animation_import_options(skeletonpath):
+    options = unreal.FbxImportUI()
+    options.set_editor_property("import_animations", True)
+    options.skeleton = unreal.load_asset(skeletonpath)
+    options.anim_sequence_import_data.set_editor_property("import_translation", unreal.Vector(0.0, 0.0, 0.0))
+    options.anim_sequence_import_data.set_editor_property("import_rotation", unreal.Rotator(0.0, 0.0, 0.0))
+    options.anim_sequence_import_data.set_editor_property("import_uniform_scale", 1.0)
+    options.anim_sequence_import_data.set_editor_property("animation_length",
+                                                          unreal.FBXAnimationLengthImportType.FBXALIT_EXPORTED_TIME)
+    options.anim_sequence_import_data.set_editor_property("remove_redundant_keys", False)
+    return options
+
+
+def execute_import_tasks(tasks):
+    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
+    for task in tasks:
+        for path in task.get_editor_property("imported_object_paths"):
+            print("Imported:\t" + str(path))
+
+
+currentGameImportsDir = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                               "C:\\\\").replace("Source", "Content/Imports")
+fontsPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                   "C:\\\\").replace("Source", "Content/Fonts")
+soundPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                   "C:\\\\").replace("Source", "Content/Sound")
+texturesPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                      "C:\\\\").replace("Source", "Content/Textures")
+videosPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                    "C:\\\\").replace("Source", "Content/Videos")
+wordsPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                   "C:\\\\").replace("Source", "Content/Words")
+skeletalmeshPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                          "C:\\\\").replace("Source", "Content/SkeletalMeshes")
+staticmeshPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                        "C:\\\\").replace("Source", "Content/StaticMeshes")
+animationsPath = unreal.Paths.game_source_dir().replace("../../../../../../",
+                                                        "C:\\\\").replace("Source", "Content/Animations")
+
+
+def import_animation(skeleton):
+    mytask = []
+    for file in os.listdir(currentGameImportsDir):
+        fileextension = file.split(".")[1]
+        filepath = (currentGameImportsDir + file).replace("\\\\", "/")
+        if fileextension == "fbx":
+            prefix = file.split("_")[0]
+            if prefix == "AN":
+                # Input a path to a skeleton to import the animation
+                mytask.append(build_import_task(filepath, soundPath, file, build_animation_import_options(skeleton)))
+
+    execute_import_tasks(mytask)
+
+
+def import_assets():
+    mytasks = []
+    for file in os.listdir(currentGameImportsDir):
+        fileextension = file.split(".")[1]
+        filepath = (currentGameImportsDir + file).replace("\\\\", "/")
+        mimefile = mime.from_file(filepath)
+        mimetype = mimefile.split("/")[0]
+        prefix = file.split("_")[0]
+        # We assume files are correctly named as SK_ or SM_ (SkeletalMesh or StaticMesh) inside Imports
+        if fileextension == "fbx":
+            if prefix == "SK":
+                mytasks.append(build_import_task(filepath, soundPath, file, build_skeletalmesh_import_options()))
+            elif prefix == "SM":
+                mytasks.append(build_import_task(filepath, soundPath, file, build_staticmesh_import_options()))
+        else:
+            if mimetype == "audio":
+                mytasks.append(build_import_task(filepath, soundPath, file))
+            elif mimetype == "font":
+                mytasks.append(build_import_task(filepath, fontsPath, file))
+            elif mimetype == "image":
+                mytasks.append(build_import_task(filepath, texturesPath, file))
+            elif mimetype == "text":
+                mytasks.append(build_import_task(filepath, wordsPath, file))
+            elif mimetype == "video":
+                mytasks.append(build_import_task(filepath, videosPath, file))
+
+    execute_import_tasks(mytasks)
+
+
+# unreal.Package
+def get_package_from_path(packagepath):
+    return unreal.load_asset(packagepath)
+
+
+def get_all_dirty_packages():
+    packages = unreal.Array(unreal.Package)
+    for x in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages():
+        packages.append(x)
+    for x in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages():
+        packages.append(x)
+    return packages
+
+
+def save_all_dirty_packages(showdialog=False):
+    if showdialog:
+        unreal.EditorLoadingAndSavingUtils.save_dirty_packages_with_dialog(save_map_packages=True,
+                                                                           save_content_packages=True)
+    else:
+        unreal.EditorLoadingAndSavingUtils.save_dirty_packages(save_map_packages=True, save_content_packages=True)
+
+
+def save_packages(packages=[], showdialog=False):
+    if showdialog:
+        unreal.EditorLoadingAndSavingUtils.save_dirty_packages_with_dialog(packages, only_dirty=False)  # May not work.
+    else:
+        unreal.EditorLoadingAndSavingUtils.save_packages(packages, only_dirty=False)
+
+
+def save_asset(assetpath):
+    EAL.save_asset(assetpath, only_if_is_dirty=False)
+
+
+def save_directory(directorypath):
+    EAL.save_directory(directorypath, only_if_is_dirty=False, recursive=True)
+
+
+def create_directory(directorypath):
+    EAL.make_directory(directorypath)
+
+
+def duplicate_directory(directorypath, duplicateddirectorypath):
+    return EAL.duplicate_directory(directorypath, duplicateddirectorypath)
+
+
+def delete_directory(directorypath):
+    EAL.delete_directory(directorypath)
+
+
+def directory_exists(directorypath):
+    return EAL.does_directory_exist(directorypath)
+
+
+def rename_directory(directorypath, renameddirectorypath):
+    EAL.rename_directory(directorypath, renameddirectorypath)
+
+
+def duplicate_asset(assetpath, duplicatedassetpath):
+    return EAL.duplicate_asset(assetpath, duplicatedassetpath)
+
+
+def delete_asset(assetpath):
+    EAL.delete_asset(assetpath)
+
+
+def asset_exists(assetpath):
+    return EAL.does_asset_exist(assetpath)
+
+
+def rename_asset(assetpath, renamedassetpath):
+    EAL.rename_asset(assetpath, renamedassetpath)
+=======
     return task
 
 
@@ -355,6 +575,7 @@ def import_assets():
         else:
             pass
     execute_import_tasks(myTasks)
+>>>>>>> 87fb193d282e5200d26af3b38278a14c60dc8ea8
 
 
 def main():
