@@ -13,6 +13,7 @@ def audio_process(audiopath):
     # detect the spoken language
     _, probs = model.detect_language(whisper.log_mel_spectrogram(whisper.pad_or_trim(whisper.load_audio(audiopath))).to(model.device))
     lang = {max(probs, key=probs.get)}
+    print("Detected language:\t", lang)
     lang = str(lang).strip("{").strip("}").replace("'", "")
     result = model.transcribe(audiopath, fp16=False, language=lang)
 
@@ -42,7 +43,7 @@ def main():
         # default to English
         lang = "en"
         if path.exists(sys.argv[1]):
-            print(text_process(audio_process(sys.argv[1]), lang))
+            print(audio_process(sys.argv[1]))
         else:
             # We are translating a language
             print(text_process(sys.argv[1], lang))
