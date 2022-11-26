@@ -1,3 +1,4 @@
+import re
 import os
 from git import Repo  # pip install gitpython
 import subprocess
@@ -5,6 +6,9 @@ import pkg_resources
 import sys
 import soundfile as sf
 import gdown
+from pathlib import Path
+import numpy as np
+import librosa
 
 
 def pip_install(package):
@@ -95,28 +99,29 @@ def main():
 
     from IPython.display import Audio
     from IPython.utils import io
-
     sys.path.append(repo_dir)
-
-    from synthesizer.inference import Synthesizer
     from encoder import inference as encoder
     from vocoder import inference as vocoder
-    from pathlib import Path
-    import numpy as np
-    import librosa
+    from synthesizer.inference import Synthesizer
 
     outputencoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "encoder.pt"
-    outputsynthesizer = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
     outputvocoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "vocoder.pt"
+    outputsynthesizer = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
 
-    encoder_weights = Path(outputencoder)
-    vocoder_weights = Path(outputvocoder)
     syn_dir = Path(outputsynthesizer)
-    encoder.load_model(encoder_weights)
+    vocoder_weights = Path(outputvocoder)
+    encoder_weights = Path(outputencoder)
+
     synthesizer = Synthesizer(syn_dir)
+
+    encoder.load_model(encoder_weights)
+
     vocoder.load_model(vocoder_weights)
 
     text = sys.argv[1]
+
+    sentences = re.split('; |, |\. |\n', text)
+
     audiopath = sys.argv[2]
     in_fpath = Path(audiopath)
     preprocessed_wav = encoder.preprocess_wav(in_fpath)
@@ -126,23 +131,35 @@ def main():
     embed = encoder.embed_utterance(preprocessed_wav)
     print("Created the embedding")
 
-    texts = [text]
-    embeds = [embed]
-
-    specs = synthesizer.synthesize_spectrograms(texts, embeds)
-    spec = specs[0]
-
-    generated_wav = vocoder.infer_waveform(spec)
-
-    generated_wav = np.pad(generated_wav, (0, synthesizer.sample_rate), mode="constant")
-
-    generated_wav = encoder.preprocess_wav(generated_wav)
-
-    with io.capture_output() as captured:
-        specs = synthesizer.synthesize_spectrograms([text], [embed])
+    generated_audio = None
+    for sent in sentences:
+        print(sent)
+        audio = synth(repo_dir, sent, embed)
+        audio = np.pad(audio, (0, synthesizer.sample_rate), mode="constant")
+        audio = encoder.preprocess_wav(audio)
+        if generated_audio is None:
+            generated_audio = audio
+        else:
+            generated_audio = np.append(generated_audio, audio)
 
     filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "") + ".wav"
-    sf.write(filename, generated_wav.astype(np.float32), synthesizer.sample_rate)
+    sf.write(filename, generated_audio.astype(np.float32), synthesizer.sample_rate)
+
+
+def synth(repoDir, text, embed):
+    sys.path.append(repoDir)
+
+    from synthesizer.inference import Synthesizer
+
+    from vocoder import inference as vocoder
+
+    outputsynthesizer = repoDir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
+
+    syn_dir = Path(outputsynthesizer)
+
+    synthesizer = Synthesizer(syn_dir)
+    specs = synthesizer.synthesize_spectrograms([text], [embed])
+    return vocoder.infer_waveform(specs[0])
 
 
 if __name__ == '__main__':
