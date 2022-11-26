@@ -141,8 +141,7 @@ def main():
     with io.capture_output() as captured:
         specs = synthesizer.synthesize_spectrograms([text], [embed])
 
-    filename = repo_dir + "\\" + "outputs" + "\\" + text.replace(" ", "_").replace(",", "").replace(".", "").replace("'", "") + ".wav"
-
+    filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "") + ".wav"
     sf.write(filename, generated_wav.astype(np.float32), synthesizer.sample_rate)
 
 
