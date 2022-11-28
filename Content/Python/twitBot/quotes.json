@@ -1,0 +1,12 @@
+[
+  {
+    "quote":"This is a test",
+    "author": "Axel",
+    "genre": "test"
+  },
+  {
+    "quote":"This is a 2nd test",
+    "author": "Axel",
+    "genre": "test"
+  }
+]
