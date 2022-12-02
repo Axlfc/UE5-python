@@ -5,10 +5,19 @@ import random
 import nest_asyncio
 import os
 
+# Just replace this line in twint/user.py:
+
+# _usr.url = ur['data']['user']['legacy']['url']
+
+# to this:
+
+#try:
+    #_usr.url = ur['data']['user']['legacy']['url']
+#except:
+    #_usr.url = ''
+
 nest_asyncio.apply()
 
-# TODO: Do some web scrape to get some twitter handles
-url = "https://www.ign.com/wikis/game-companies-on-twitter/Longpages"
 
 def get_quotes():
     with open("quotes.json") as quotes_file:
@@ -18,10 +27,7 @@ def get_quotes():
 
 
 def get_random_quote():
-    quotes = get_quotes()
-    quote = random.choice(quotes)
-
-    return quote
+    return random.choice(get_quotes())
 
 
 def form_tweet(quote):
@@ -32,8 +38,8 @@ def form_tweet(quote):
 
 
 def is_character_valid(tweet):
-    islengthvalid = len(tweet) < 280
-    return islengthvalid
+    return len(tweet) < 280
+
 
 def get_tweet():
     while True:
@@ -41,11 +47,24 @@ def get_tweet():
         if is_character_valid(tweet):
             return tweet
 
+
+def get_name(user):
+    c = twint.Config()
+    c.Username = user
+    c.Store_object = True
+    c.Hide_output = True
+    twint.run.Lookup(c)
+    user = twint.output.users_list[0]
+
+    return user.name
+
+
 def get_user_num_tweets(user):
     c = twint.Config()
     c.Username = user
     c.Store_object = True
     c.Hide_output = True
+    c.Limit = 1
     twint.run.Lookup(c)
     user = twint.output.users_list[0]
     return user.tweets
@@ -56,6 +75,7 @@ def get_user_join_date(user):
     c.Username = user
     c.Store_object = True
     c.Hide_output = True
+    c.Limit = 1
     twint.run.Lookup(c)
     user = twint.output.users_list[0]
     return user.join_date
@@ -103,13 +123,23 @@ def get_hashtags(twits):
     return hashtags
 
 
-def main():
-    accounts = ["sanchezcastejon", "katyperry"]
+def get_webpage(user):
+    c = twint.Config()
+    c.Username = user
+    c.Store_object = True
+    c.Hide_output = True
+    twint.run.Lookup(c)
+    usr = twint.output.users_list[0]
+    return usr.url
 
-    for account in accounts:
-        twits = twitter(account)
+
+def main():
+    # accounts = ["sanchezcastejon", "katyperry"]
+
+    '''for account in accounts:
+        twits = twitter(account)    
         print(twits)
-    '''hashtags = get_hashtags(twits)
+    hashtags = get_hashtags(twits)
     for hashtag in hashtags:
         print(hashtag)'''
     # print(get_tweet())
