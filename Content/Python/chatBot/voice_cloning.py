@@ -91,18 +91,22 @@ def downloadModels(repoDir):
     gdown.download(vocoderURL, outputvocoder, quiet=False)
     open(x, 'a').close()
 
-def main():
-    repo_dir = os.path.join(os.getcwd().split("\n")[0], "voiceCloning")
-    clone_voice_repo(repo_dir)
-    check_install_dependencies(repo_dir)
-    if not os.path.exists(repo_dir + "\\" + "modelsDownloaded.txt"):
-        downloadModels(repo_dir)
+
+def initialize_voice_repo(repoDir):
+    clone_voice_repo(repoDir)
+    check_install_dependencies(repoDir)
+    if not os.path.exists(repoDir + "\\" + "modelsDownloaded.txt"):
+        downloadModels(repoDir)
 
     # Initializing all the encoder libraries
 
-    from IPython.display import Audio
-    from IPython.utils import io
-    sys.path.append(repo_dir)
+    sys.path.append(repoDir)
+
+
+def main():
+    repo_dir = os.path.join(os.getcwd().split("\n")[0], "voiceCloning")
+    initialize_voice_repo(repo_dir)
+
     from encoder import inference as encoder
     from vocoder import inference as vocoder
     from synthesizer.inference import Synthesizer
@@ -130,13 +134,10 @@ def main():
     preprocessed_wav = encoder.preprocess_wav(in_fpath)
     original_wav, sampling_rate = librosa.load(str(in_fpath))
     preprocessed_wav = encoder.preprocess_wav(original_wav, sampling_rate)
-    print("Loaded file succesfully")
     embed = encoder.embed_utterance(preprocessed_wav)
-    print("Created the embedding")
 
     generated_audio = None
     for sent in sentences:
-        print(sent)
         audio = synth(repo_dir, sent, embed)
         audio = np.pad(audio, (0, synthesizer.sample_rate), mode="constant")
         audio = encoder.preprocess_wav(audio)
