@@ -5,6 +5,7 @@ import sys
 
 
 def bot(prompt):
+    load_dotenv()
     openai.api_key = os.environ["OPENAI_API_KEY"]
 
     completions = openai.Completion.create(
@@ -20,8 +21,8 @@ def bot(prompt):
 
 
 def main():
-    load_dotenv()
     print(bot(sys.argv[1]))
+    return bot(sys.argv[1])
 
 
 if __name__ == '__main__':
