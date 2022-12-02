@@ -6,7 +6,7 @@ import sys
 def main():
     repo_dir = os.path.join(os.getcwd().split("\n")[0], "voiceCloning")
 
-    botanswer = bot.bot(sys.argv[1]).strip()
+    botanswer = bot.bot(sys.argv[1]).strip().replace('\n', ' ')
     botvoice = "bella.wav"
 
     command = "python voice_cloning.py \"" + str(botanswer) + "\"" + " \"" + botvoice + "\""
@@ -15,10 +15,8 @@ def main():
     print()
     print()
     print(botanswer)
-    # TODO: Play audio file
     voicecommand = "python playaudio.py " + filename
     os.system(voicecommand)
-    # TODO: Remove audio file
     os.remove(filename)
 
 
