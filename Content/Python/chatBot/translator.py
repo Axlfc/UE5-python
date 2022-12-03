@@ -67,9 +67,13 @@ langs = {
 }
 
 
+def detect_language(text):
+    DetectorFactory.seed = 0
+    return detect(text)
+
+
 def audio_process(audiopath):
     model = whisper.load_model("medium")  # tiny, base, small, medium, large
-
     # detect the spoken language
     _, probs = model.detect_language(whisper.log_mel_spectrogram(whisper.pad_or_trim(whisper.load_audio(audiopath))).to(model.device))
     lang = {max(probs, key=probs.get)}
@@ -81,10 +85,8 @@ def audio_process(audiopath):
 
 
 def text_process(text, destlang):
-    DetectorFactory.seed = 0
     translator = Translator()
-    lang = detect(text)
-    result = translator.translate(text, src=lang, dest=destlang).text
+    result = translator.translate(text, src=detect_language(text), dest=destlang).text
     return result
 
 
