@@ -5,20 +5,6 @@ import sys
 import translator as translate
 
 
-def pythonCheck(text):
-    if re.search(r'^(for|while|if|def|try|except|else|elif|with|continue|break|#|from|import|return|pass|async|await|yield|raise|del|class|global|finally|assert)', text):
-        return True
-    # if it starts with a '(' then it's not python
-    if re.search(r'^\(', text):
-        return False
-     # if it starts or ends with a '=' then it's not python
-    if re.search(r'^=|=$', text):
-        return False
-    if re.search(r'\(|=', text):
-        return True
-    return False
-
-
 def main():
     repo_dir = os.path.join(os.getcwd().split("\n")[0], "voiceCloning")
     lang = translate.detect(sys.argv[1])
