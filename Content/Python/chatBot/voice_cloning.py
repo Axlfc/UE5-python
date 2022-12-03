@@ -11,9 +11,6 @@ import numpy as np
 import librosa
 
 
-# TODO: Check if voiceCloning repo folder exists in previous folder to not repeat the git clone if possible.
-
-
 def pip_install(package):
     query = []
     pythonpath = 'python'
