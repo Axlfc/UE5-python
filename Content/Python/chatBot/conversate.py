@@ -20,7 +20,6 @@ def add_message(message, initialtime):
 
 
 def conversate():
-    chat_log = []
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
         print("Enter your text:")
@@ -32,7 +31,6 @@ def conversate():
         add_message(bot_answer, initial_time)
         print(colorama.Fore.YELLOW + bot_answer)
         print(colorama.Fore.RESET)
-        print(chat_log)
 
 
 def main():
