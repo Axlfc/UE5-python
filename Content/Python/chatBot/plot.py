@@ -1,5 +1,4 @@
 import bot
-import re
 import os
 import sys
 import translator as translate
