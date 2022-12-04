@@ -1,7 +1,7 @@
 import os
 import colorama
-import speech_recognition as sr
-
+import speech_recognition as sr  # pip install SpeechRecognition
+import process_system
 
 def start_listening_microphone_input(r):
     with sr.Microphone() as source:
@@ -20,6 +20,7 @@ def convert_speech_to_text(r):
 
 
 def main():
+    python = process_system.main()
     while True:
         r = sr.Recognizer()
         # r.wait_for_silence(source, timeout=float("inf"))
@@ -28,7 +29,7 @@ def main():
         print("You said: " + text)
         if text == "exit" or text == "quit":
             exit(0)
-        command = "python plot.py \"" + str(text) + "\""
+        command = python + " plot.py \"" + str(text) + "\""
         print(colorama.Fore.YELLOW)
         os.system(command)
         print(colorama.Fore.RESET)

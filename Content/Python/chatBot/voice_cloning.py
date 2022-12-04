@@ -2,18 +2,18 @@ import re
 import os
 from git import Repo  # pip install gitpython
 import subprocess
-import pkg_resources
+import pkg_resources # pip install setuptools
 import sys
 import soundfile as sf
 import gdown
 from pathlib import Path
 import numpy as np
 import librosa
-
+import process_system
 
 def pip_install(package):
     query = []
-    pythonpath = 'python'
+    pythonpath = process_system.main()
     query.append(pythonpath)
     query.append('-m pip install ' + package)
 
