@@ -33,6 +33,8 @@ def main():
             exit(0)
         if type(text) == "NoneType":
             continue
+        elif text == "None":
+            continue
         command = python + " plot.py \"" + str(text) + "\"" + " \"" + initial_time + "\""
         print(colorama.Fore.YELLOW)
         os.system(command)
