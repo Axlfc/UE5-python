@@ -28,17 +28,17 @@ def main():
         # r.wait_for_silence(source, timeout=float("inf"))
         start_listening_microphone_input(r)
         text = convert_speech_to_text(r)
-        print("You said: " + str(text))
+
         if text == "exit" or text == "quit":
             exit(0)
-        if type(text) == "NoneType":
-            continue
-        elif text == "None":
-            continue
-        command = python + " plot.py \"" + str(text) + "\"" + " \"" + initial_time + "\""
-        print(colorama.Fore.YELLOW)
-        os.system(command)
-        print(colorama.Fore.RESET)
+        if type(text) == "NoneType" or text == "None" or text == "none":
+            pass
+        else:
+            print("You said: " + str(text))
+            command = python + " plot.py \"" + str(text) + "\"" + " \"" + initial_time + "\""
+            print(colorama.Fore.YELLOW)
+            os.system(command)
+            print(colorama.Fore.RESET)
 
 
 if __name__ == '__main__':
