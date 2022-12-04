@@ -17,7 +17,11 @@ def main():
 
     command = python + " voice_cloning.py \"" + str(botanswernojumplines) + "\"" + " \"" + botvoice + "\""
     os.system(command)
-    filename = repo_dir + "\\" + "outputs" + "\\" + botanswernojumplines[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+    if process_system.plat() == "Windows":
+        filename = repo_dir + "\\" + "outputs" + "\\" + botanswernojumplines[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+    else:
+        filename = repo_dir + "/" + "outputs" + "/" + botanswernojumplines[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+
     print()
     print()
     print(original_bot_answer)

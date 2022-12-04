@@ -29,7 +29,10 @@ def pip_install(package):
 
 
 def check_install_dependencies(repodir):
-    x = repodir + "\\" + "pipisupdated.txt"
+    if process_system.plat() == "Windows":
+        x = repodir + "\\" + "pipisupdated.txt"
+    else:
+        x = repodir + "/" + "pipisupdated.txt"
     if not os.path.exists(x):
         # Capturing installed pip packages
         installed_packages = pkg_resources.working_set
@@ -37,8 +40,10 @@ def check_install_dependencies(repodir):
         installed_packages_names_list = []
         for installedPackage in range(len(installed_packages_list)):
             installed_packages_names_list.append(installed_packages_list[installedPackage].split("=")[0])
-
-        requirements_path = repodir + "\\" + "requirements.txt"
+        if process_system.plat() == "Windows":
+            requirements_path = repodir + "\\" + "requirements.txt"
+        else:
+            requirements_path = repodir + "/" + "requirements.txt"
         pipPackages = []
         with open(requirements_path, encoding="utf-16") as f:
             lines = f.readlines()
@@ -59,29 +64,44 @@ def clone_voice_repo(repodir):
         print("Cloning Real-Time-Voice-Cloning repo")
         os.mkdir(repodir)
         Repo.clone_from("https://github.com/CorentinJ/Real-Time-Voice-Cloning", repodir)
-
-    outputfilepath = repodir + "\\" + "outputs"
+    if process_system.plat() == "Windows":
+        outputfilepath = repodir + "\\" + "outputs"
+    else:
+        outputfilepath = repodir + "/" + "outputs"
     if not os.path.exists(outputfilepath):
         os.mkdir(outputfilepath)
 
 
 def downloadModels(repoDir):
-    x = repoDir + "\\" + "modelsDownloaded.txt"
+    if process_system.plat() == "Windows":
+        x = repoDir + "\\" + "modelsDownloaded.txt"
+    else:
+        x = repoDir + "/" + "modelsDownloaded.txt"
     encoderURL = "https://drive.google.com/uc?export=download&id=1q8mEGwCkFy23KZsinbuvdKAQLqNKbYf1"
     synthesizerURL = "https://drive.google.com/u/0/uc?id=1EqFMIbvxffxtjiVrtykroF6_mUh-5Z3s"
     vocoderURL = "https://drive.google.com/uc?export=download&id=1cf2NO6FtI0jDuy8AV3Xgn6leO6dHjIgu"
 
-    foldersavemodels = repoDir + "\\" + "saved_models"
+    if process_system.plat() == "Windows":
+        foldersavemodels = repoDir + "\\" + "saved_models"
+    else:
+        foldersavemodels = repoDir + "/" + "saved_models"
     if not os.path.exists(foldersavemodels):
         os.mkdir(foldersavemodels)
-
-    defaultfolder = foldersavemodels + "\\" + "default"
+    if process_system.plat() == "Windows":
+        defaultfolder = foldersavemodels + "\\" + "default"
+    else:
+        defaultfolder = foldersavemodels + "/" + "default"
     if not os.path.exists(defaultfolder):
         os.mkdir(defaultfolder)
 
-    outputencoder = defaultfolder + "\\" + "encoder.pt"
-    outputsynthesizer = defaultfolder + "\\" + "synthesizer.pt"
-    outputvocoder = defaultfolder + "\\" + "vocoder.pt"
+    if process_system.plat() == "Windows":
+        outputencoder = defaultfolder + "\\" + "encoder.pt"
+        outputsynthesizer = defaultfolder + "\\" + "synthesizer.pt"
+        outputvocoder = defaultfolder + "\\" + "vocoder.pt"
+    else:
+        outputencoder = defaultfolder + "/" + "encoder.pt"
+        outputsynthesizer = defaultfolder + "/" + "synthesizer.pt"
+        outputvocoder = defaultfolder + "/" + "vocoder.pt"
 
     gdown.download(encoderURL, outputencoder, quiet=False)
     gdown.download(synthesizerURL, outputsynthesizer, quiet=False)
@@ -92,8 +112,12 @@ def downloadModels(repoDir):
 def initialize_voice_repo(repoDir):
     clone_voice_repo(repoDir)
     check_install_dependencies(repoDir)
-    if not os.path.exists(repoDir + "\\" + "modelsDownloaded.txt"):
-        downloadModels(repoDir)
+    if process_system.plat() == "Windows":
+        if not os.path.exists(repoDir + "\\" + "modelsDownloaded.txt"):
+            downloadModels(repoDir)
+    else:
+        if not os.path.exists(repoDir + "/" + "modelsDownloaded.txt"):
+            downloadModels(repoDir)
 
     # Initializing all the encoder libraries
 
@@ -108,9 +132,14 @@ def main():
     from vocoder import inference as vocoder
     from synthesizer.inference import Synthesizer
 
-    outputencoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "encoder.pt"
-    outputvocoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "vocoder.pt"
-    outputsynthesizer = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
+    if process_system.plat() == "Windows":
+        outputencoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "encoder.pt"
+        outputvocoder = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "vocoder.pt"
+        outputsynthesizer = repo_dir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
+    else:
+        outputencoder = repo_dir + "/" + "saved_models" + "/" + "default" + "/" + "encoder.pt"
+        outputvocoder = repo_dir + "/" + "saved_models" + "/" + "default" + "/" + "vocoder.pt"
+        outputsynthesizer = repo_dir + "/" + "saved_models" + "/" + "default" + "/" + "synthesizer.pt"
 
     syn_dir = Path(outputsynthesizer)
     vocoder_weights = Path(outputvocoder)
@@ -142,8 +171,11 @@ def main():
             generated_audio = audio
         else:
             generated_audio = np.append(generated_audio, audio)
+    if process_system.plat() == "Windows":
+        filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+    else:
+        filename = repo_dir + "/" + "outputs" + "/" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
 
-    filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
     sf.write(filename, generated_audio.astype(np.float32), synthesizer.sample_rate)
 
 
@@ -154,7 +186,11 @@ def synth(repoDir, text, embed):
 
     from vocoder import inference as vocoder
 
-    outputsynthesizer = repoDir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
+    if process_system.plat() == "Windows":
+        outputsynthesizer = repoDir + "\\" + "saved_models" + "\\" + "default" + "\\" + "synthesizer.pt"
+    else:
+        outputsynthesizer = repoDir + "/" + "saved_models" + "/" + "default" + "/" + "synthesizer.pt"
+
 
     syn_dir = Path(outputsynthesizer)
 
