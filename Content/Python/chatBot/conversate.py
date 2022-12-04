@@ -7,7 +7,7 @@ from datetime import datetime
 def add_message(message, initialtime):
     now = datetime.now()
     time = now.strftime("%H-%M-%S")
-    date = now.strftime("%m-%d-%Y")
+    date = now.strftime("%Y-%m-%d")
     repo_dir = os.path.join(os.getcwd().split("\n")[0], "conversations")
     x = repo_dir + "\\" + date
     filepath = x + "\\" + initialtime + ".txt"
