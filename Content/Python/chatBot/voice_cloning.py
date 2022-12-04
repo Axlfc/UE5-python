@@ -172,9 +172,9 @@ def main():
         else:
             generated_audio = np.append(generated_audio, audio)
     if process_system.plat() == "Windows":
-        filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+        filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
     else:
-        filename = repo_dir + "/" + "outputs" + "/" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
+        filename = repo_dir + "/" + "outputs" + "/" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
 
     sf.write(filename, generated_audio.astype(np.float32), synthesizer.sample_rate)
 

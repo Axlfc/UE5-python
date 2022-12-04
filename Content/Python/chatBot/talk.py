@@ -32,7 +32,7 @@ def main():
 
         if text == "exit" or text == "quit":
             exit(0)
-        if type(text) == "NoneType" or text == "None" or text == "none" or text == "":
+        elif type(text) == "NoneType" or str(text) == "None" or text == "none" or text == "":
             pass
         else:
             print("You said: " + str(text))
