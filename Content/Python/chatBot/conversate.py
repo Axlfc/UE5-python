@@ -16,7 +16,6 @@ def add_message(message, initialtime):
 
     with open(filepath, "a", encoding="utf-8") as f:
         f.write(time.strip() + ": " + message.strip() + "\n")
-        # print("We should be adding the text: ", time + ":\t" + message + " to the file.")
 
 
 def conversate():
