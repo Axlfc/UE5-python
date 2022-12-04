@@ -4,6 +4,7 @@ import speech_recognition as sr  # pip install SpeechRecognition
 import process_system
 from datetime import datetime
 
+
 def start_listening_microphone_input(r):
     with sr.Microphone() as source:
         print("Say something:")
@@ -31,7 +32,7 @@ def main():
 
         if text == "exit" or text == "quit":
             exit(0)
-        if type(text) == "NoneType" or text == "None" or text == "none":
+        if type(text) == "NoneType" or text == "None" or text == "none" or text == "":
             pass
         else:
             print("You said: " + str(text))
