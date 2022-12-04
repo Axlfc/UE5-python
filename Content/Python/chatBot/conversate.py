@@ -25,14 +25,14 @@ def add_message(message, initialtime):
 def conversate():
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
-        print("Enter your text:")
+        print(colorama.Fore.RED + "Enter your text:" + colorama.Fore.CYAN)
         text = input()
         add_message(text, initial_time)
         if text == "exit" or text == "quit":
             exit(0)
         bot_answer = bot.bot(text)
         add_message(bot_answer, initial_time)
-        print(colorama.Fore.YELLOW + bot_answer)
+        print(colorama.Fore.GREEN + bot_answer)
         print(colorama.Fore.RESET)
 
 

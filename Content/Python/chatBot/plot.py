@@ -4,6 +4,7 @@ import sys
 import translator as translate
 import process_system
 import conversate
+import colorama
 
 def main():
     python = process_system.main()
@@ -26,8 +27,8 @@ def main():
         filename = repo_dir + "/" + "outputs" + "/" + botanswernojumplines[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "") + ".wav"
 
     print()
-    print()
-    print(original_bot_answer)
+    print(colorama.Fore.GREEN)
+    print(original_bot_answer + colorama.Fore.RESET)
     conversate.add_message(original_bot_answer, sys.argv[2])
     voicecommand = python + " playaudio.py " + filename
     os.system(voicecommand)

@@ -7,7 +7,7 @@ from datetime import datetime
 
 def start_listening_microphone_input(r):
     with sr.Microphone() as source:
-        print("Say something:")
+        print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         return r.listen(source)
 
 
@@ -28,14 +28,17 @@ def main():
         r = sr.Recognizer()
         # r.wait_for_silence(source, timeout=float("inf"))
         start_listening_microphone_input(r)
+
         text = convert_speech_to_text(r)
+        if text:
+            print("Converting your voice to text...")
 
         if text == "exit" or text == "quit":
             exit(0)
         elif type(text) == "NoneType" or str(text) == "None" or text == "none" or text == "":
             pass
         else:
-            print("You said: " + str(text))
+            print("You said: " + colorama.Fore.RED + str(text))
             command = python + " plot.py \"" + str(text) + "\"" + " \"" + initial_time + "\""
             print(colorama.Fore.YELLOW)
             os.system(command)
