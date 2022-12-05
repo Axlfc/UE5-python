@@ -37,8 +37,8 @@ def main():
                 c = False
                 while True:
                     "Entered Termux voice recognition now"
-                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE).stdout.decode("utf-8")
-                    print("You said: " + text)
+                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+                    print("You said: " + str(text))
                     '''c = text.stdout.readline()
                     res = c.replace("\n", "")
                     print(colorama.Fore.CYAN)
