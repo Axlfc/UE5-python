@@ -3,9 +3,11 @@ import colorama
 import speech_recognition as sr  # pip install SpeechRecognition
 import process_system
 from datetime import datetime
+import subprocess
 
 
 def start_listening_microphone_input(r):
+
     with sr.Microphone() as source:
         print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         return r.listen(source)
@@ -13,7 +15,10 @@ def start_listening_microphone_input(r):
 
 def convert_speech_to_text(r):
     try:
-        text = r.recognize_google(start_listening_microphone_input(r))
+        if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+            text = subprocess.getoutput("termux-speech-to-text")
+        else:
+            text = r.recognize_google(start_listening_microphone_input(r))
         return text
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand what you said.")
