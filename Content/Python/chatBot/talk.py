@@ -13,12 +13,7 @@ def start_listening_microphone_input(r):
 
 def convert_speech_to_text(r):
     try:
-        if process_system.plat() == "Windows":
-            text = r.recognize_google(start_listening_microphone_input(r))
-        elif process_system.plat() == "Linux":
-            text = r.recognize_google(start_listening_microphone_input(r))
-            if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                pass
+        text = r.recognize_google(start_listening_microphone_input(r))
         return text
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand what you said.")
@@ -36,9 +31,9 @@ def main():
         if process_system.plat() == "Windows":
             # r.wait_for_silence(source, timeout=float("inf"))
             start_listening_microphone_input(r)
+            text = convert_speech_to_text(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                print("hola")
                 c = False
                 while True:
                     "Entered Termux voice recognition now"
@@ -52,8 +47,7 @@ def main():
                         sys.exit()
             else:
                 start_listening_microphone_input(r)
-
-        text = convert_speech_to_text(r)
+                text = convert_speech_to_text(r)
         if text:
             print("Converting your voice to text...")
 
