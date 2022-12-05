@@ -12,13 +12,22 @@ def start_listening_microphone_input(r):
 
 
 def convert_speech_to_text(r):
-    try:
-        text = r.recognize_google(start_listening_microphone_input(r))
-        return text
-    except sr.UnknownValueError:
-        print("Sorry, I couldn't understand what you said.")
-    except sr.RequestError as e:
-        print(f"Error processing request: {e}")
+    text = ''  # Initialize the variable that will store the transcribed text
+
+    if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+        text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+
+        # Loop indefinitely and print the transcribed text as it is received
+        while True:
+            c = text.stdout.readline().decode("utf-8")
+            res = c.replace("\n", "")
+            print(colorama.Fore.CYAN + res)
+            print("-" * 30)
+            if res == 'stop':
+                break
+                sys.exit()
+
+    return text  # Return the transcribed text
 
 
 def main():
@@ -34,17 +43,9 @@ def main():
             text = convert_speech_to_text(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+                text = convert_speech_to_text(r)  # Get the transcribed text from the function
+                print("You said: " + text)
 
-                # Loop indefinitely and print the transcribed text as it is received
-                while True:
-                    c = text.stdout.readline().decode("utf-8")
-                    res = c.replace("\n", "")
-                    print(colorama.Fore.CYAN + res)
-                    print("-" * 30)
-                    if res == 'stop':
-                        break
-                        sys.exit()
             else:
                 start_listening_microphone_input(r)
                 text = convert_speech_to_text(r)
