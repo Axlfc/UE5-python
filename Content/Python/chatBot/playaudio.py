@@ -34,8 +34,12 @@ def open_audio_file():
 
 def main():
     if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+        command0 = "pulseaudio -D"
         command = "play " + sys.argv[1]
+        command1 = "pulseaudio -k"
+        os.system(command0)
         os.system(command)
+        os.system(command1)
     else:
         open_audio_file()
 
