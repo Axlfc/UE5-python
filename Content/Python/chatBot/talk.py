@@ -34,11 +34,12 @@ def main():
             text = convert_speech_to_text(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                c = False
+                # Start the termux-speech-to-text command
+                text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+
+                # Loop indefinitely and print the transcribed text as it is received
                 while True:
-                    print("Entered Termux voice recognition now")
-                    text = subprocess.run("termux-speech-to-text", stdout=subprocess.PIPE)
-                    c = text.stdout.read().decode("utf-8")
+                    c = text.stdout.readline().decode("utf-8")
                     res = c.replace("\n", "")
                     print(colorama.Fore.CYAN + res)
                     print("-" * 30)
