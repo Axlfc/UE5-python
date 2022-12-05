@@ -18,6 +18,7 @@ def convert_speech_to_text(r):
         elif process_system.plat() == "Linux":
             text = r.recognize_google(start_listening_microphone_input(r))
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+                print("hola")
                 c = False
                 while True:
                     text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
