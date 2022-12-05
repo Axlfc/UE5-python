@@ -18,18 +18,7 @@ def convert_speech_to_text(r):
         elif process_system.plat() == "Linux":
             text = r.recognize_google(start_listening_microphone_input(r))
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                print("hola")
-                c = False
-                while True:
-                    "Entered Termux voice recognition now"
-                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
-                    c = text.stdout.readline()
-                    res = c.replace("\n", "")
-                    print(colorama.Fore.CYAN)
-                    print("-" * 30)
-                    if res == 'stop':
-                        break
-                        sys.exit()
+                pass
         return text
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand what you said.")
@@ -49,7 +38,18 @@ def main():
             start_listening_microphone_input(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                pass
+                print("hola")
+                c = False
+                while True:
+                    "Entered Termux voice recognition now"
+                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+                    c = text.stdout.readline()
+                    res = c.replace("\n", "")
+                    print(colorama.Fore.CYAN)
+                    print("-" * 30)
+                    if res == 'stop':
+                        break
+                        sys.exit()
             else:
                 start_listening_microphone_input(r)
 
