@@ -15,6 +15,18 @@ def start_listening_microphone_input(r):
     with sr.Microphone(device_name="My Microphone") as source:
         return r.listen(source)
 
+    # List the available input devices and choose the one you want to use
+    print("Available input devices:")
+    for i, device_name in enumerate(sr.Microphone.list_microphone_names()):
+        print(f"{i}: {device_name}")
+
+    device_index = int(input("Enter the index of the device you want to use: "))
+
+    # Use the selected device as the input device
+    with sr.Microphone(device_index=device_index) as source:
+        return r.listen(source)
+
+
 def convert_speech_to_text(r):
     try:
         text = r.recognize_google(start_listening_microphone_input(r))
