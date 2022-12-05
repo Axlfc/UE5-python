@@ -34,13 +34,21 @@ def main():
             text = convert_speech_to_text(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                start_listening_microphone_input(r)
-                text = convert_speech_to_text(r)
-                print("You said: " + text)
+                text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
 
+                # Loop indefinitely and print the transcribed text as it is received
+                while True:
+                    c = text.stdout.readline().decode("utf-8")
+                    res = c.replace("\n", "")
+                    print(colorama.Fore.CYAN + res)
+                    print("-" * 30)
+                    if res == 'stop':
+                        break
+                        sys.exit()
             else:
                 start_listening_microphone_input(r)
                 text = convert_speech_to_text(r)
+        print("You said: " + text)
 
         if text:
             print("Converting your voice to text...")
