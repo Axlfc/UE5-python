@@ -38,7 +38,7 @@ def main():
                 while True:
                     print("Entered Termux voice recognition now")
                     text = subprocess.run("termux-speech-to-text", stdout=subprocess.PIPE)
-                    c = text.stdout.readline().decode("utf-8")
+                    c = text.stdout.read().decode("utf-8")
                     res = c.replace("\n", "")
                     print(colorama.Fore.CYAN + res)
                     print("-" * 30)
