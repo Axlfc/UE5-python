@@ -4,6 +4,7 @@ import speech_recognition as sr  # pip install SpeechRecognition
 import process_system
 from datetime import datetime
 import subprocess
+import pocketsphinx
 
 
 def start_listening_microphone_input(r):
