@@ -48,7 +48,7 @@ def main():
             start_listening_microphone_input(r)
         elif process_system.plat() == "Linux":
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                continue
+                pass
             else:
                 start_listening_microphone_input(r)
 
