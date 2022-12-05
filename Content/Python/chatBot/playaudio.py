@@ -34,7 +34,8 @@ def open_audio_file():
 
 def main():
     if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-        print("Playing audio in Android")
+        command = "play " + sys.argv[1]
+        os.system(command)
     else:
         open_audio_file()
 
