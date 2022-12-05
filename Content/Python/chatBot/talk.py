@@ -19,6 +19,8 @@ def convert_speech_to_text(r):
         print("Sorry, I couldn't understand what you said.")
     except sr.RequestError as e:
         print(f"Error processing request: {e}")
+    except OSError:
+        print("Wait, Termux??")
 
 
 def main():
