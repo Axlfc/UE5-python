@@ -31,8 +31,10 @@ def main():
         print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         r = sr.Recognizer()
 
-        if not subprocess.check_output(['uname', '-o']).strip() == b'Android':
+        if subprocess.check_output(['uname', '-o']).strip() == b'Android':
             # r.wait_for_silence(source, timeout=float("inf"))
+            pass
+        else:
             start_listening_microphone_input(r)
 
         text = convert_speech_to_text(r)
