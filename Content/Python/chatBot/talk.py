@@ -7,9 +7,13 @@ import subprocess
 
 
 def start_listening_microphone_input(r):
-    with sr.Microphone() as source:
+    # Use the device with index 0 as the input device
+    with sr.Microphone(device_index=0) as source:
         return r.listen(source)
 
+    # Use the device with the specified name as the input device
+    with sr.Microphone(device_name="My Microphone") as source:
+        return r.listen(source)
 
 def convert_speech_to_text(r):
     try:
