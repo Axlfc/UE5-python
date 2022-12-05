@@ -1,8 +1,9 @@
 import sys
 import pyaudio
 import wave
-import subprocess
+import process_system
 import os
+import subprocess
 
 def load_audio_file():
     return wave.open(sys.argv[1], 'rb')
@@ -33,7 +34,9 @@ def open_audio_file():
 
 
 def main():
-    if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+    if process_system.plat() == "Windows":
+        open_audio_file()
+    elif subprocess.check_output(['uname', '-o']).strip() == b'Android':
         command0 = "pulseaudio -D"
         command = "play " + sys.argv[1]
         command1 = "pulseaudio -k"
