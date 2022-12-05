@@ -7,9 +7,7 @@ import subprocess
 
 
 def start_listening_microphone_input(r):
-
     with sr.Microphone() as source:
-        print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         return r.listen(source)
 
 
@@ -30,6 +28,7 @@ def main():
     python = process_system.main()
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
+        print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         r = sr.Recognizer()
         # r.wait_for_silence(source, timeout=float("inf"))
         start_listening_microphone_input(r)
