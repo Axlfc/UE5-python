@@ -36,12 +36,12 @@ def main():
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
                 c = False
                 while True:
-                    "Entered Termux voice recognition now"
-                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+                    print("Entered Termux voice recognition now")
+                    text = subprocess.run("termux-speech-to-text", stdout=subprocess.PIPE)
                     c = text.stdout.readline().decode("utf-8")
                     res = c.replace("\n", "")
                     print(colorama.Fore.CYAN + res)
-                    print("-"*30)
+                    print("-" * 30)
                     if res == 'stop':
                         break
                         sys.exit()
