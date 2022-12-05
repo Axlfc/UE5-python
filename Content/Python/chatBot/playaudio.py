@@ -1,7 +1,8 @@
 import sys
 import pyaudio
 import wave
-
+import subprocess
+import os
 
 def load_audio_file():
     return wave.open(sys.argv[1], 'rb')
@@ -32,7 +33,10 @@ def open_audio_file():
 
 
 def main():
-    open_audio_file()
+    if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+        print("Playing audio in Android")
+    else:
+        open_audio_file()
 
 
 if __name__ == '__main__':
