@@ -13,10 +13,12 @@ def start_listening_microphone_input(r):
 
 def convert_speech_to_text(r):
     try:
-        if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-            text = subprocess.getoutput("termux-speech-to-text")
-        else:
+        if process_system.plat() == "Windows":
             text = r.recognize_google(start_listening_microphone_input(r))
+        elif process_system.plat() == "Linux":
+            text = r.recognize_google(start_listening_microphone_input(r))
+            if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+                text = subprocess.getoutput("termux-speech-to-text")
         return text
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand what you said.")
@@ -31,11 +33,14 @@ def main():
         print(colorama.Fore.RED + "Say something:" + colorama.Fore.CYAN)
         r = sr.Recognizer()
 
-        if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+        if process_system.plat() == "Windows":
             # r.wait_for_silence(source, timeout=float("inf"))
-            pass
-        else:
             start_listening_microphone_input(r)
+        elif process_system.plat() == "Linux":
+            if subprocess.check_output(['uname', '-o']).strip() == b'Android':
+                continue
+            else:
+                start_listening_microphone_input(r)
 
         text = convert_speech_to_text(r)
         if text:
