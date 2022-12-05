@@ -18,7 +18,16 @@ def convert_speech_to_text(r):
         elif process_system.plat() == "Linux":
             text = r.recognize_google(start_listening_microphone_input(r))
             if subprocess.check_output(['uname', '-o']).strip() == b'Android':
-                text = subprocess.getoutput("termux-speech-to-text")
+                c = False
+                while True:
+                    text = subprocess.Popen("termux-speech-to-text", stdout=subprocess.PIPE)
+                    c = text.stdout.readline()
+                    res = c.replace("\n", "")
+                    print(colorama.Fore.CYAN)
+                    print("-" * 30)
+                    if res == 'stop':
+                        break
+                        sys.exit()
         return text
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand what you said.")
