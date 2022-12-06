@@ -61,4 +61,34 @@ Windows:
 
 - Use exit or quit words to end the conversation.
 
+If you want the AI to talk to you using a concrete voice, you should try running talk.py script which is used to make the AI process an audio file of their response, for the moment voice chat works only on Windows or GNU/Linux:
+
+- Install portaudio
+
+GNU/Linux:
+
+<code>sudo apt-get install -y build-essential portaudio19-dev</code>
+
+- Install the required Python dependencies and it should work:
+
+GNU/Linux:
+
+<code>pip3 install git+https://github.com/openai/whisper.git jiwer gitpython gdown pathlib setuptools pyaudio soundfile pathlib numpy librosa SpeechRecognition langdetect googletrans==4.0.0-rc1</code>
+
+Windows:
+
+<code>pip install git+https://github.com/openai/whisper.git jiwer gitpython gdown pathlib setuptools pyaudio soundfile pathlib numpy librosa SpeechRecognition langdetect googletrans==4.0.0-rc1</code>
+
+Run talk.py to begin to talk with the AI locally on your terminal, the voice will process and then played.
+
+GNU/Linux:
+
+<code>python3 talk.py</code>
+
+Windows:
+
+<code>python talk.py</code>
+
+Voice processing in talk.py script isn't able to mantain a conversation (almost) real time with the ChatGPT AI due to long audio processing time, but it is definitely possible.
+
 # twitterBot
