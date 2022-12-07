@@ -92,7 +92,6 @@ Windows:
 Voice processing in talk.py script isn't able to mantain a conversation (almost) real time with the ChatGPT AI due to long audio processing time, but it is definitely possible.
 
 #### TODO (known bugs):
-* Make sure the folder of the log is always saved in the same repo folder
 * Voice to text recognizement & pytorch install seems not to work in Android (Termux)
 
 
