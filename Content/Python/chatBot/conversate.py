@@ -37,7 +37,7 @@ def conversate():
 
 
 def main():
-    repo_dir = os.path.join(os.getcwd().split("\n")[0], "conversations")
+    repo_dir = os.path.join(os.path.abspath(__file__).split("\n")[0], "conversations")
 
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
