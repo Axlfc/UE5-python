@@ -8,7 +8,7 @@ def add_message(message, initialtime):
     now = datetime.now()
     time = now.strftime("%H-%M-%S")
     date = now.strftime("%Y-%m-%d")
-    repo_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)).split("\n")[0], "conversations")
+    repo_dir = os.path.join(os.path.abspath(__file__)[:-14].split("\n")[0], "conversations")
     if process_system.plat() == "Windows":
         x = repo_dir + "\\" + date
         filepath = x + "\\" + initialtime + ".txt"
@@ -37,7 +37,7 @@ def conversate():
 
 
 def main():
-    repo_dir = os.path.join(os.path.abspath(__file__).split("\n")[0], "conversations")
+    repo_dir = os.path.join(os.path.abspath(__file__)[:-14].split("\n")[0], "conversations")
 
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
