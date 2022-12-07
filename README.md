@@ -91,4 +91,9 @@ Windows:
 
 Voice processing in talk.py script isn't able to mantain a conversation (almost) real time with the ChatGPT AI due to long audio processing time, but it is definitely possible.
 
+#### TODO:
+* Voice to text recognizement in Android (Termux)
+
 # twitterBot
+
+Twitter stuff
