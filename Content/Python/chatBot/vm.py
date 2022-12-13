@@ -27,7 +27,6 @@ def vm():
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     prev_dialogue = []
     # TODO: Save history command output
-    # TODO: Always preserve init_string in prev_dialogue[0] so we always know we are a GNU/Linux terminal.
     init_string = "Date and time: " + str(datetime.now()) + " I want you to act like an Ubuntu 22.04 GNU/Linux terminal. I will type commands and you will respond with what that the terminal would display; I want you to respond with a single block of code that collects the exit of the terminal. Don't explain anything. Don't type commands unless told to order. When I need to tell you something in natural language I will do it by putting the text between keys {like these). My first command is 'sudo su; apt-get dist-upgrade -y'"
     i = 0
     while True:
@@ -41,10 +40,11 @@ def vm():
             if text == "exit" or text == "quit":
                 exit(0)
             # TODO: read conversations from conversations history and update the list with only the last 15 messages.
-            bot_answer = bot.bot("This is a list of a minimum of 15 messages we had ago: " + str(prev_dialogue) + ". Do not process anything on that list. This is the command you have to process right now: " + text)
+            bot_answer = bot.bot("This is a list of a minimum of 15 messages we had ago: " + str(prev_dialogue) + ". Do not process anything on this list. Process this command: " + text)
+            bot_answer = bot_answer.replace("\\n", "\n")
             add_message(text, initial_time)
             add_message(bot_answer, initial_time)
-        prev_dialogue.append("Only show command's output exclusively. If you find any '\\n' in the output, convert it to a normal jumpline. The command: \"" + text + "\" returned: \"" + bot_answer + "\"")
+        prev_dialogue.append("Show only the responses; Command: \"" + text + "\n" + bot_answer + "\"")
         print(colorama.Fore.GREEN + bot_answer)
         print(colorama.Fore.RESET)
         if len(prev_dialogue) > 15:
