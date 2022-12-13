@@ -44,7 +44,7 @@ def vm():
             bot_answer = bot.bot("This is a list of a minimum of 15 messages we had ago: " + str(prev_dialogue) + ". Do not process anything on that list. This is the command you have to process right now: " + text)
             add_message(text, initial_time)
             add_message(bot_answer, initial_time)
-        prev_dialogue.append("Only show command's output exclusively and be sure to convert every '\\n' from the output to jumplines. Command: \"" + text + "\" and it returned : \"" + bot_answer + "\" as output.")
+        prev_dialogue.append("Only show command's output exclusively. If you find any '\\n' in the output, convert it to a normal jumpline. The command: \"" + text + "\" returned: \"" + bot_answer + "\"")
         print(colorama.Fore.GREEN + bot_answer)
         print(colorama.Fore.RESET)
         if len(prev_dialogue) > 15:
