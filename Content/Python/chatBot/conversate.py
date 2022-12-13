@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import process_system
 
+
 def add_message(message, initialtime):
     now = datetime.now()
     time = now.strftime("%H-%M-%S")
