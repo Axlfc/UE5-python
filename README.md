@@ -132,6 +132,14 @@ Voice processing in talk.py script isn't able to mantain a conversation (almost)
 
 If you only want the AI to generate code for you, use the script code.py and pass some commented code to it and it will reply creating code for you!
 
+GNU/Linux & Termux (Android):
+
+<code>python3 code.py "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
+
+Windows:
+
+<code>python code.py "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
+
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ht3n6gzwq3r9w9721dq3.png"></img></center>
 
 #### TODO (known bugs):
