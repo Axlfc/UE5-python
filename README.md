@@ -48,6 +48,8 @@ Also you can generate code using the function **codeGPT** to generate code when 
 Example:
 
 <code>codeGPT "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
+<code>chatGPT "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
+<code>talkGPT "Tell me any card"</code>
 
 ## chatBot manual installation
 
@@ -151,6 +153,7 @@ Windows:
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ht3n6gzwq3r9w9721dq3.png"></img></center>
 
+There are more scripts inside the chatBot folder, you can check them out too.
 
 # twitterBot
 
