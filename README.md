@@ -28,7 +28,8 @@ Change 'your_API_key_value' to the one you got from openai webpage before runnin
 
 That's it, now after opening a new terminal just type **chatGPT** in the console and magic happens.
 
-![A screenshot of ChatGPT running on my Android Phone in Termux App](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg)
+<center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
+chatGPT running on Android in Termux App
 
 ## chatBot manual installation
 
