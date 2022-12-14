@@ -168,11 +168,13 @@ Twitter stuff
 (Scraping engine)
 
 # redditBot
-(API bot)
-#### TODO:
-* Convince Reddit to un-ban me 
 
 Reddit stuff
+(API bot)
+(Scraping engine)
+
+#### TODO:
+* Convince Reddit to un-ban me 😉
 
 # HoudiniFX
 
