@@ -3,6 +3,7 @@ import colorama
 import os
 from datetime import datetime
 import process_system
+import sys
 
 
 def add_message(message, initialtime):
@@ -39,10 +40,22 @@ def conversate():
 
 def main():
     repo_dir = os.path.join(os.path.abspath(__file__)[:-14].split("\n")[0], "conversations")
-
+    doOnce = True
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
-    conversate()
+
+    if len(sys.argv[1]) >= 2:
+        initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+        text = sys.argv[1]
+        add_message(text, initial_time)
+        if text == "exit" or text == "quit":
+            exit(0)
+        bot_answer = bot.bot(text)
+        add_message(bot_answer, initial_time)
+        print(colorama.Fore.GREEN + bot_answer)
+        print(colorama.Fore.RESET)
+    else:
+        conversate()
 
 
 if __name__ == '__main__':

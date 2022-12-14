@@ -4,6 +4,7 @@ import speech_recognition as sr  # pip install SpeechRecognition
 import process_system
 from datetime import datetime
 import subprocess
+import sys
 
 
 def start_listening_microphone_input(r):
@@ -39,7 +40,7 @@ def convert_speech_to_text(r):
         print("Wait, Termux??")
 
 
-def main():
+def talk():
     python = process_system.main()
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
@@ -63,6 +64,27 @@ def main():
             print(colorama.Fore.YELLOW)
             os.system(command)
             print(colorama.Fore.RESET)
+
+
+def main():
+    if len(sys.argv[1]) >= 2:
+        python = process_system.main()
+        initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+
+        text = sys.argv[1]
+
+        if text == "exit" or text == "quit":
+            exit(0)
+        elif type(text) == "NoneType" or str(text) == "None" or text == "none" or text == "":
+            pass
+        else:
+            command = python + " plot.py \"" + str(text) + "\"" + " \"" + initial_time + "\""
+            print(colorama.Fore.YELLOW)
+            os.system(command)
+            print(colorama.Fore.RESET)
+    else:
+        talk()
+
 
 
 if __name__ == '__main__':
