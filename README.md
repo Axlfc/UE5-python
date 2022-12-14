@@ -20,11 +20,8 @@ Project Settings -> Plugins -> Python and enable developer mode.
 
 Get your openAI API key (Go to [openai webpage](https://beta.openai.com/account/api-keys) to get yours)
 
-Create a new file (named .env) inside ~/.customizer/bin/chatGPT/Content/Python/chatBot folder containing:
-
-OPENAI_API_KEY=your_API_key_valueblablablah
-
-Save and close the .env file.
+(Change 'your_API_key_value' to the one you got from openai webpage after running the next command)
+<code>echo "OPENAI_API_KEY=your_API_key_value" > ~/.customizer/bin/chatGPT/Content/Python/chatBot/.env</code>
 
 That's it, now after opening a new terminal just type **chatGPT** in the console.
 
