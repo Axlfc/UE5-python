@@ -26,7 +26,7 @@ Change 'your_API_key_value' to the one you got from openai webpage before runnin
 
 <code>bash</code>
 
-That's it, now after opening a new terminal just type **chatGPT** in the console and magic happens.
+That's it, now just type **chatGPT** in the console and magic happens.
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
 
