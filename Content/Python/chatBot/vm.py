@@ -28,7 +28,6 @@ def vm():
     prev_dialogue = []
     # TODO: Save history command output
     init_string = "Date and time: " + str(datetime.now()) + " I want you to act like an Ubuntu 22.04 GNU/Linux terminal. I will type commands and you will respond with what that the terminal would display; I want you to respond with a single block of code that collects the exit of the terminal. Don't explain anything. Don't type commands unless told to order. When I need to tell you something in natural language I will do it by putting the text between keys {like these). My first command is 'sudo su; apt-get dist-upgrade -y'"
-    i = 0
     while True:
         if len(prev_dialogue) == 0:
             text = init_string
@@ -49,10 +48,6 @@ def vm():
         print(colorama.Fore.RESET)
         if len(prev_dialogue) > 15:
             prev_dialogue.pop(1)
-        i += 1
-        # print(prev_dialogue)
-        print(i)
-        # print(prev_dialogue)
 
 
 def main():
