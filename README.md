@@ -49,7 +49,8 @@ Example:
 
 <code>codeGPT "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
 
-<code>chatGPT "Kant vs. Nietzsche. Give me a well formatted table containing relationships of similarity and opposite thoughts on the deepest issues of his career and thought in philosophy in a json format so i can import it to python. With that json file, tell me proportionally in what they agree in a percentage, and form that percentages, only show me one which resumes all the other percentages to I only have a total percentage of agreement they had overall they careers and explain to me why it's overall pertentage is what it is."</code>
+<code>chatGPT "Kant vs. Nietzsche. Give me a well formatted table containing relationships of similarity and opposite thoughts on the deepest issues of his career and thought in philosophy in a json format so i can import it to python. With that json file, tell me proportionally in what they agree in a percentage, and form that percentages, only show me one which resumes all the other percentages to I only have a total percentage of agreement they had overall they careers and explain to me why it's overall pertentage is what it is. Specify more information on the topics they disagree and show quotes of them
+to prove it"</code>
 
 <code>talkGPT "Tell me any playing card"</code>
 
