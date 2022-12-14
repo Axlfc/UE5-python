@@ -8,7 +8,7 @@ Project Settings -> Plugins -> Python and enable developer mode.
 
 - Install it on GNU/Linux (Easiest way)
 
-<code>sudo apt-get install -y git</code>
+<code>sudo apt-get install -y git python3</code>
  
 <code>git clone https://github.com/AleixMT/Linux-Auto-Customizer</code>
 
