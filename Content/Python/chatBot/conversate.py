@@ -44,7 +44,7 @@ def main():
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
 
-    if len(sys.argv[1]) >= 2:
+    if len(sys.argv) >= 2:
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
         text = sys.argv[1]
         add_message(text, initial_time)

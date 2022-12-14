@@ -67,7 +67,7 @@ def talk():
 
 
 def main():
-    if len(sys.argv[1]) >= 2:
+    if len(sys.argv) >= 2:
         python = process_system.main()
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
