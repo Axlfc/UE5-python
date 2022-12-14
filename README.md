@@ -100,6 +100,8 @@ Windows:
 
 - Use exit or quit words to end the conversation.
 
+## talkGPT
+
 If you want the AI to talk to you using a concrete voice, you should try running talk.py script which is used to make the AI process an audio file of their response, for the moment voice chat works only on Windows or GNU/Linux:
 
 - Install portaudio
@@ -129,6 +131,8 @@ Windows:
 <code>python talk.py</code>
 
 Voice processing in talk.py script isn't able to mantain a conversation (almost) real time with the ChatGPT AI due to long audio processing time, but it is definitely possible.
+
+## codeGPT
 
 If you only want the AI to generate code for you, use the script code.py and pass some commented code to it and it will reply creating code for you!
 
