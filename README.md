@@ -169,7 +169,8 @@ Twitter stuff
 
 # redditBot
 (API bot)
-### TODO: 
+#### TODO:
+* Convince Reddit to un-ban me 
 
 Reddit stuff
 
