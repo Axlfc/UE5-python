@@ -9,7 +9,7 @@ For running it on Windows or Android (Termux App) follow the section Manual Inst
 
 - Install it on GNU/Linux (Easiest way)
 
-<code>sudo apt-get install -y git python3</code>
+<code>sudo apt-get install -y git python3 build-essential portaudio19-dev</code>
  
 <code>git clone https://github.com/AleixMT/Linux-Auto-Customizer</code>
 
