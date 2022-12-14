@@ -41,7 +41,7 @@ You can use **talkGPT** (but not yet in Android) to talk to the console and the 
 
 #### TODO (known bugs):
 * Voice to text recognizement & pytorch install seems not to work in Android (Termux)
-* When 1 argument is passed to conversate-py or talk-py, it should redirect the string input to be the only call to execute just once and never enter in while True.
+* real-time history for conversate.py and talk.py
 
 Also you can generate code using the function **codeGPT** to generate code when commentaries are passed to it.
 
