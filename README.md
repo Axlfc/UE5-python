@@ -26,7 +26,7 @@ OPENAI_API_KEY=your_API_key_valueblablablah
 
 Save and close the .env file.
 
-That's it, now after opening a new terminal just type **chatGPT** in the terminal.
+That's it, now after opening a new terminal just type **chatGPT** in the console.
 
 ## chatBot manual installation
 
