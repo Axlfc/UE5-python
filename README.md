@@ -34,7 +34,7 @@ Use 'exit' or 'quit' words to end the conversation.
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
 
-You can use **talkGPT** (but not in Android) to talk to the console and the AI will respond using a custom voice too.
+You can use **talkGPT** (but not yet in Android) to talk to the console and the AI will respond using a custom voice too.
 
 <code>talkGPT</code>
 
