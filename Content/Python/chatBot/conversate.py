@@ -43,8 +43,10 @@ def main():
     doOnce = True
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
+    argument_list = len(sys.argv[1:])
 
-    if len(sys.argv) >= 2:
+
+    if len(sys.argv) > 1:
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
         text = sys.argv[1]
         add_message(text, initial_time)
