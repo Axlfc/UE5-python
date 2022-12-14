@@ -59,7 +59,6 @@ def main():
                          username=os.environ["REDDIT_USERNAME"],
                          password=os.environ["REDDIT_PASSWORD"])
     # scrape_data(reddit, 'afaces')
-    submit_url_post(reddit, "afaces", "Afaces 'Most Popular Songs' list", "https://www.youtube.com/watch?v=XoKYkPEfuus&list=OLAK5uy_n9pmTUB7rkcX_ru9CbDzibNzEXiQw6qtk")
 
 
 if __name__ == '__main__':
