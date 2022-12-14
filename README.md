@@ -181,6 +181,10 @@ Reddit stuff
 Test script with hython3.9.exe from Houdinit's folder.
 <code>hython3.9.exe houdini.py</code>
 
+
+#### TODO:
+* Trick houdini to be able to import hou module correctly in houdini.py script using a regular python3 version to not rely on hython.
+
 # Blender
 
 Nothing yet
