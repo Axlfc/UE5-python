@@ -24,6 +24,8 @@ Change 'your_API_key_value' to the one you got from openai webpage before runnin
 
 <code>echo "OPENAI_API_KEY=your_API_key_value" > ~/.customizer/bin/chatGPT/Content/Python/chatBot/.env</code>
 
+<code>bash</code>
+
 That's it, now after opening a new terminal just type **chatGPT** in the console.
 
 ## chatBot manual installation
