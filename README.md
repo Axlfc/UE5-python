@@ -121,3 +121,7 @@ Voice processing in talk.py script isn't able to mantain a conversation (almost)
 # twitterBot
 
 Twitter stuff
+
+# redditBot
+
+Reddit stuff
