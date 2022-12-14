@@ -36,6 +36,8 @@ Use 'exit' or 'quit' words to end the conversation.
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
 
 You can use **talkGPT** (but not yet in Android) to talk to the console and the AI will respond using a custom voice too.
+#### TODO (known bugs):
+* Voice to text recognizement & pytorch install seems not to work in Android (Termux)
 
 <code>talkGPT</code>
 
@@ -146,9 +148,6 @@ Windows:
 <code>python code.py "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ht3n6gzwq3r9w9721dq3.png"></img></center>
-
-#### TODO (known bugs):
-* Voice to text recognizement & pytorch install seems not to work in Android (Termux)
 
 
 # twitterBot
