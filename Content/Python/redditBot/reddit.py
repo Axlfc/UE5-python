@@ -16,8 +16,14 @@ def downvote_post(reddit, post_id):
 
 
 # Create a function to submit a new post
-def submit_post(reddit, title, body):
-    reddit.subreddit('subreddit_name').submit(title, body)
+def submit_post(reddit, subreddit, title, body):
+    reddit.subreddit(subreddit).submit(title, body)
+
+
+# Create a function to submit a new post
+def submit_url_post(reddit, subreddit, title, url):
+    subreddit = reddit.subreddit(subreddit)  # Create a Subreddit instance
+    subreddit.submit(title, url=url)  # Use the submit() method to submit the post
 
 
 # Create a function to post a comment
@@ -29,23 +35,31 @@ def post_comment(reddit, post_id, comment):
 # Create a function to scrape data from Reddit
 def scrape_data(reddit, subreddit):
     subreddit = reddit.subreddit(subreddit)
-    for submission in subreddit.hot(limit=1):
+    posts = subreddit.top()  # Get all the top posts in the subreddit
+    post_count = len(list(posts))  # Get the total number of posts
+
+    for submission in subreddit.hot(limit=10):
         post_title = submission.title
         post_author = submission.author
         post_comments = submission.comments
         post_upvotes = submission.score
+        post_id = submission.id
         # Do something with the data
-        print(post_title, post_author, post_comments, post_upvotes)
+        print()
+        print(post_title, post_author, post_comments, post_upvotes, post_id)
 
 
 def main():
     load_dotenv()
+
     # Create a Reddit instance
     reddit = praw.Reddit(client_id=os.environ["REDDIT_API_KEY"],
                          client_secret=os.environ["REDDIT_API_SECRET_KEY"],
-                         user_agent=os.environ["REDDIT_USER_AGENT"])
-
-    scrape_data(reddit, "r/afaces")
+                         user_agent=os.environ["REDDIT_USER_AGENT"],
+                         username=os.environ["REDDIT_USERNAME"],
+                         password=os.environ["REDDIT_PASSWORD"])
+    # scrape_data(reddit, 'afaces')
+    submit_url_post(reddit, "afaces", "Afaces 'Most Popular Songs' list", "https://www.youtube.com/watch?v=XoKYkPEfuus&list=OLAK5uy_n9pmTUB7rkcX_ru9CbDzibNzEXiQw6qtk")
 
 
 if __name__ == '__main__':
