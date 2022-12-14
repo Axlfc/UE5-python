@@ -18,6 +18,17 @@ Project Settings -> Plugins -> Python and enable developer mode.
 
 <code>bash src/core/install.sh -v -o chatGPT</code>
 
+Put your openAI API key (Go to [openai webpage](https://beta.openai.com/account/api-keys) to get yours)
+
+Create a new file (named .env) inside ~/.customizer/bin/chatGPT/Content/Python/chatBot folder containing:
+
+OPENAI_API_KEY=your_API_key_valueblablablah
+
+Save and close the .env file.
+
+That's it, now after opening a new terminal just type **chatGPT** in the terminal.
+
+## chatBot manual installation
 
 - Install Python3 and Git
 
