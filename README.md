@@ -6,6 +6,18 @@ Project Settings -> Plugins -> Python and enable developer mode.
 
 # chatBot
 
+- Install it on GNU/Linux (Easiest way)
+
+<code>sudo apt-get install -y git</code>
+ 
+<code>git clone https://github.com/AleixMT/Linux-Auto-Customizer</code>
+
+<code>cd Linux-Auto-Customizer</code>
+
+<code>git checkout chatGPT_feature</code>
+
+<code>bash src/core/install.sh -v -o chatGPT</code>
+
 
 - Install Python3 and Git
 
