@@ -28,13 +28,18 @@ Change 'your_API_key_value' to the one you got from openai webpage before runnin
 
 That's it, now just type **chatGPT** in the console and magic happens.
 
+<code>chatGPT</code>
+
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
 
 You can use **talkGPT** to talk to the console and the AI will respond using a custom voice too.
 
+<code>talkGPT</code>
+
 Also you can generate code using the function **codeGPT** to generate code when commentaries are passed to it.
 
-Example: 
+Example:
+
 <code>codeGPT "# Python3  # A code to store a list of dictionaries of fruits and vegetables"</code>
 
 ## chatBot manual installation
