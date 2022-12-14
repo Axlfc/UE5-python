@@ -5,6 +5,7 @@ Let's test this Python-Unreal Engine 5 thing for Video Game Production Managemen
 Project Settings -> Plugins -> Python and enable developer mode.
 
 # chatBot
+For running it on Windows or Android (Termux App) follow the section Manual Installation down on this post. 
 
 - Install it on GNU/Linux (Easiest way)
 
