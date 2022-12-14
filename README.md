@@ -70,7 +70,7 @@ Termux (Android):
 
 - Log into openAI web page and get your API key.
 
-- Edit .env file from the repository folder and paste your API Key to set the variable OPENAI_API_KEY
+- Edit .env file from the **chatBot** repository folder and paste your API Key to set the variable OPENAI_API_KEY
 
 - Run conversate.py to begin to conversate with the AI locally on your terminal.
 
