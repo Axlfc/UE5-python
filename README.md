@@ -40,6 +40,7 @@ You can use **talkGPT** (but not yet in Android) to talk to the console and the 
 <code>talkGPT</code>
 
 #### TODO (known bugs):
+* If a .wav audio is passed as 1st argument instead of a text, it should interpret it to text and use it as input.
 * Voice to text recognizement & pytorch install seems not to work in Android (Termux)
 * real-time history for conversate.py and talk.py
 
