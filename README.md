@@ -173,9 +173,6 @@ Reddit stuff
 (API bot)
 (Scraping engine)
 
-#### TODO:
-* Convince Reddit to un-ban me 😉
-
 # HoudiniFX
 
 Test script with hython3.9.exe from Houdinit's folder.
