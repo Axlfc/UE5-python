@@ -80,11 +80,11 @@ Termux (Android):
 
 GNU/Linux:
 
-<code>pip3 install openai python-dotenv colorama</code>
+<code>pip3 install openai python-dotenv transformers colorama</code>
 
 Windows:
 
-<code>pip install openai python-dotenv colorama</code>
+<code>pip install openai python-dotenv transformers colorama</code>
 
 Termux (Android):
 
@@ -122,7 +122,13 @@ If you want to run a simple command `chat` to run chatGPT in Windows Terminal, y
 
 <code>Set-Alias chat chat_function</code>
 
-Now when you type `chat` in your Windows Terminal it will start chatGPT.
+If you also want that `chat` alias in bash, you can edit ~/.bash_aliases file and add:
+<code>chatGPT()
+{
+  python3" "~/UE5-python/Content/Python/chatBot/conversate.py"
+}</code>
+
+Now when you type `chat` in your Terminal it will start chatGPT.
 
 ## talkGPT
 
