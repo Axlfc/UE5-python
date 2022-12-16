@@ -118,8 +118,8 @@ If you want to run a simple command `chat` to run chatGPT in Windows Terminal, y
 
 <code>function chat_function {
     python C:\Users\Your_Username\Desktop\UE5-python\Content\Python\chatBot\conversate.py
-}
-Set-Alias chat chat_function</code>
+}</code>
+<code>Set-Alias chat chat_function</code>
 
 Now when you type `chat` in your Windows Terminal it will start chatGPT.
 
