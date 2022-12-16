@@ -114,7 +114,7 @@ Windows:
 
 - Use exit or quit words to end the conversation.
 
-If you want to run a simple command `chat` to run chatGPT in Windows Terminal, you can edit the C:\Users\Your_Username\Documents\WindowsPowershell\Microsoft.PowerShell_profile.ps1 and add to it the following lines:
+If you want to run a simple command `chat` to run chatGPT in Windows Terminal, you can edit the C:\Users\Your_Username\Documents\WindowsPowershell\Microsoft.PowerShell_profile.ps1 file and add to it the following lines:
 
 <code>function chat_function {
     python C:\Users\Your_Username\Desktop\UE5-python\Content\Python\chatBot\conversate.py
