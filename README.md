@@ -114,6 +114,15 @@ Windows:
 
 - Use exit or quit words to end the conversation.
 
+If you want to run a simple command `chat` to run chatGPT in Windows Terminal, you can edit the C:\Users\Your_Username\Documents\WindowsPowershell\Microsoft.PowerShell_profile.ps1 and add to it the following lines:
+
+`function chat_function {
+    python C:\Users\Your_Username\Desktop\UE5-python\Content\Python\chatBot\conversate.py
+}
+Set-Alias chat chat_function`
+
+Now when you type `chat` in your Windows Terminal it will start chatGPT.
+
 ## talkGPT
 
 If you want the AI to talk to you using a concrete voice, you should try running talk.py script which is used to make the AI process an audio file of their response, for the moment voice chat works only on Windows or GNU/Linux:
