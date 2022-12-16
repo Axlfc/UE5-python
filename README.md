@@ -126,7 +126,7 @@ If you also want that `chat` alias in GNU/Linux or Android, you can edit `~/.bas
 
 <code>chat()
 {
-  python3" "~/UE5-python/Content/Python/chatBot/conversate.py"
+  python3 "~/UE5-python/Content/Python/chatBot/conversate.py"
 }</code>
 
 Now when you type `chat` in your Terminal it will start chatGPT.
