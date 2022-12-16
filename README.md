@@ -80,11 +80,11 @@ Termux (Android):
 
 GNU/Linux:
 
-<code>pip3 install openai python-dotenv transformers colorama</code>
+<code>pip3 install openai python-dotenv colorama</code>
 
 Windows:
 
-<code>pip install openai python-dotenv transformers colorama</code>
+<code>pip install openai python-dotenv colorama</code>
 
 Termux (Android):
 
