@@ -123,7 +123,7 @@ If you want to run a simple command `chat` to run chatGPT in Windows Terminal, y
 <code>Set-Alias chat chat_function</code>
 
 If you also want that `chat` alias in GNU/Linux or Android, you can edit `~/.bash_aliases` file and add:
-<code>chatGPT()
+<code>chat()
 {
   python3" "~/UE5-python/Content/Python/chatBot/conversate.py"
 }</code>
