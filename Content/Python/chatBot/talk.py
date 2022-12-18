@@ -72,10 +72,8 @@ def main():
     if len(sys.argv) > 1:
         python = process_system.main()
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-        mime = magic.Magic(mime=True)
-        mimefile = mime.from_file(sys.argv[1])
-        mimetype = mimefile.split("/")[0]
-        if mimetype == "audio":
+        fileextension = sys.argv[1].split(".")[1]
+        if fileextension == "wav":
             lang = translate.detect(sys.argv[1])
             command = python + " translator.py \"" + sys.argv[1] + "\"" + " \"" + lang + "\""
             text = os.system(command)
