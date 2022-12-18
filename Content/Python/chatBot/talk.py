@@ -5,6 +5,8 @@ import process_system
 from datetime import datetime
 import subprocess
 import sys
+import magic  # pip install python-magic
+import translator as translate
 
 
 def start_listening_microphone_input(r):
@@ -70,8 +72,16 @@ def main():
     if len(sys.argv) > 1:
         python = process_system.main()
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-
-        text = sys.argv[1]
+        mime = magic.Magic(mime=True)
+        mimefile = mime.from_file(sys.argv[1])
+        mimetype = mimefile.split("/")[0]
+        if mimetype == "audio":
+            lang = translate.detect(sys.argv[1])
+            command = python + " translator.py \"" + sys.argv[1] + "\"" + " \"" + lang + "\""
+            text = os.system(command)
+        else:
+            print('Argument is not an audio with .wav extension')
+            text = sys.argv[1]
 
         if text == "exit" or text == "quit":
             exit(0)
@@ -84,7 +94,6 @@ def main():
             print(colorama.Fore.RESET)
     else:
         talk()
-
 
 
 if __name__ == '__main__':

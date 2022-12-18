@@ -1,12 +1,18 @@
 import platform
-
+import os
 
 def plat():
     return platform.system()
 
 def process_pythonversion(platf):
     if platf == "Linux":
-        return "python3"
+        # If customizer installation exists
+        if os.path.isdir('~/.customizer/bin/chatGPT'):
+        # TODO: Detect if this is a Customizer installation and set python3 to the path in customizer instead of python3.
+            print("hey")
+            return "~/.customizer/bin/chatGPT/bin/python3"
+        else:
+            return "python3"
 
     elif platf == "Windows":
         return "python"
