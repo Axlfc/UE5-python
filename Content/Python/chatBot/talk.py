@@ -77,7 +77,7 @@ def main():
         if fileextension == "wav":
             lang = translate.detect(sys.argv[1])
             command = [python, "translator.py", sys.argv[1], lang]
-            text = subprocess.check_output(command)
+            text = subprocess.check_output(command).decode("utf-8")
             print("You said: " + colorama.Fore.RED + str(text))
         else:
             text = sys.argv[1]
