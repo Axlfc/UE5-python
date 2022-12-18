@@ -7,6 +7,7 @@ import subprocess
 import sys
 import magic  # pip install python-magic
 import translator as translate
+import subprocess
 
 
 def start_listening_microphone_input(r):
@@ -75,8 +76,8 @@ def main():
         fileextension = sys.argv[1].split(".")[1]
         if fileextension == "wav":
             lang = translate.detect(sys.argv[1])
-            command = python + " translator.py \"" + sys.argv[1] + "\"" + " \"" + lang + "\""
-            text = os.system(command)
+            command = [python, "translator.py", sys.argv[1], lang]
+            text = subprocess.check_output(command)
             print("You said: " + colorama.Fore.RED + str(text))
         else:
             text = sys.argv[1]
