@@ -79,8 +79,8 @@ def main():
             lang = translate.detect(sys.argv[1])
             command = python + " translator.py \"" + sys.argv[1] + "\"" + " \"" + lang + "\""
             text = os.system(command)
+            print("You said: " + colorama.Fore.RED + str(text))
         else:
-            print('Argument is not an audio with .wav extension')
             text = sys.argv[1]
 
         if text == "exit" or text == "quit":
