@@ -73,14 +73,13 @@ def main():
     if len(sys.argv) > 1:
         python = process_system.main()
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-        fileextension = sys.argv[1].split(".")[1]
-        if fileextension == "wav":
+        if not sys.argv[1].split(".")[1] == "wav":
+            text = sys.argv[1]
+        else:
             lang = translate.detect(sys.argv[1])
             command = [python, "translator.py", sys.argv[1], lang]
             text = subprocess.check_output(command).decode("utf-8")
             print("You said: " + colorama.Fore.RED + str(text))
-        else:
-            text = sys.argv[1]
 
         if text == "exit" or text == "quit":
             exit(0)

@@ -5,10 +5,14 @@ import translator as translate
 import process_system
 import conversate
 import colorama
+import voice_cloning as voice
+
 
 def main():
     python = process_system.main()
     repo_dir = os.path.join(os.getcwd().split("\n")[0], "voiceCloning")
+    if not os.path.exists(repo_dir):
+        voice.initialize_voice_repo(repo_dir)
     conversate.add_message(sys.argv[1], sys.argv[2])
     lang = translate.detect(sys.argv[1])
     botanswer = bot.bot(sys.argv[1]).strip()
