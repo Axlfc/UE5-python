@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 import sys
 
+
+# MODELS:
 # text-curie-001
 # text-babbage-001
 # text-ada-001
@@ -14,22 +16,31 @@ import sys
 # curie
 # babbage
 # ada
-
+# gpt-3.5-turbo
+# gpt-3.5-turbo-0301
 
 def bot(prompt):
     load_dotenv()
     openai.api_key = os.environ["OPENAI_API_KEY"]
+    model = "gpt-3.5-turbo-0301"
 
-    completions = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        temperature=0.5,
-    )
+    if "turbo" in model:
+        completion = openai.ChatCompletion.create(
+            model = "gpt-3.5-turbo-0301", 
+            messages = [{"role": "user", "content": prompt}]
+        )
+        return str(completion.choices[0]).split("content")[1][6:].split("role")[0][:-1].replace('\\n', '\n')[:-7]
+    else:
+        completions = openai.Completion.create(
+            engine=model,
+            prompt=prompt,
+            max_tokens=1024,
+            n=1,
+            temperature=0.5,
+        )
 
-    response = completions.choices[0].text
-    return response
+        response = completions.choices[0].text
+        return response
 
 
 def main():
