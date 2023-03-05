@@ -8,6 +8,7 @@ import sys
 # text-curie-001
 # text-babbage-001
 # text-ada-001
+# text-davinci-003
 # text-davinci-002
 # text-davinci-001
 # davinci-instruct-beta
@@ -26,17 +27,17 @@ def bot(prompt):
 
     if "turbo" in model:
         completion = openai.ChatCompletion.create(
-            model = "gpt-3.5-turbo-0301", 
+            model = model, 
             messages = [{"role": "user", "content": prompt}]
         )
         return str(completion.choices[0]).split("content")[1][6:].split("role")[0][:-1].replace('\\n', '\n')[:-7]
     else:
         completions = openai.Completion.create(
-            engine=model,
-            prompt=prompt,
-            max_tokens=1024,
-            n=1,
-            temperature=0.5,
+            engine = model,
+            prompt = prompt,
+            max_tokens = 1024,
+            n = 1,
+            temperature = 0.5,
         )
 
         response = completions.choices[0].text
