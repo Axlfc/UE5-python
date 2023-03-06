@@ -30,7 +30,7 @@ def bot(prompt):
             model = model, 
             messages = [{"role": "user", "content": prompt}]
         )
-        return str(completion.choices[0]).split("content")[1][6:].split("role")[0][:-1].replace('\\n', '\n')[:-7]
+        return str(completion.choices[0]).split("content")[1][6:].split("role")[0][:-1].replace('\\n', '\n')[:-7].encode('utf-8').decode('unicode_escape')
     else:
         completions = openai.Completion.create(
             engine = model,
