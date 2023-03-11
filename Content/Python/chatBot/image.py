@@ -80,6 +80,25 @@ def main():
             print("Generated image edited saved as:", edit_filename)
         else:
             print("Error generating image edited")
+    elif len(sys.argv) == 4:
+        image_filename = sys.argv[2]
+        mask_filename = sys.argv[3]
+
+        if os.path.isfile(mask_filename) and mask_filename.endswith(".png"):
+            pass
+        else:
+            print("Mask file format not supported. Only PNG files are supported as masks. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.")
+            print("An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited.")
+            return
+
+        edit_filename = os.path.splitext(image_filename)[0] + "_masked1.jpg"
+        image_url = create_image_edit(image_filename, mask_filename, prompt, int(n), size, response_format)
+
+        if image_url is not None:
+            download_image(image_url, edit_filename)
+            print("Generated image edited with mask saved as:", edit_filename)
+        else:
+            print("Error generating image edited")
     else:
         image_url = generate_image(prompt, n, size, response_format)
         print("Generated image URL:", image_url)
