@@ -33,6 +33,20 @@ def generate_image(prompt, n=1, size="1024x1024", response_format="url"):
     return None
 
 
+def generate_image_variation(image_filename, n=1, size="1024x1024", response_format="url"):
+    data = openai.Image.create_variation(
+        image=open(image_filename, "rb"),
+        n=n,
+        size=size,
+        response_format=response_format,
+        model="image-alpha-001"
+    )
+    image_url = str(data).split("url")[1][4:]
+    image_url = "\n".join(image_url.rsplit("\n", 3)[:-3])
+
+    return image_url[:-1]
+
+
 def create_image_edit(image_filename, mask_filename, prompt, n=1, size="1024x1024", response_format="url"):
     data = openai.Image.create_edit(
         image=open(image_filename, "rb"),
@@ -91,7 +105,7 @@ def main():
             print("An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited.")
             return
 
-        edit_filename = os.path.splitext(image_filename)[0] + "_masked1.jpg"
+        edit_filename = os.path.splitext(image_filename)[0] + "_masked.jpg"
         image_url = create_image_edit(image_filename, mask_filename, prompt, int(n), size, response_format)
 
         if image_url is not None:
@@ -99,6 +113,16 @@ def main():
             print("Generated image edited with mask saved as:", edit_filename)
         else:
             print("Error generating image edited")
+    elif len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
+        # Only one argument and it's a file, run generate_image_variation
+        image_filename = sys.argv[1]
+        variation_url = generate_image_variation(image_filename)
+        if variation_url is not None:
+            variation_filename = os.path.splitext(image_filename)[0] + "_variation.jpg"
+            download_image(variation_url, variation_filename)
+            print("Generated image variation saved as:", variation_filename)
+        else:
+            print("Error generating image variation")
     else:
         image_url = generate_image(prompt, n, size, response_format)
         print("Generated image URL:", image_url)
