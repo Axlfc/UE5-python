@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 import sys
 import process_system
+from PIL import Image
+import base64
 
 load_dotenv()
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -31,8 +33,23 @@ def generate_image(prompt, n=1, size="1024x1024", response_format="url"):
     return None
 
 
-def download_image(url, filename):
+def create_image_edit(image_filename, mask_filename, prompt, n=1, size="1024x1024", response_format="url"):
+    data = openai.Image.create_edit(
+        image=open(image_filename, "rb"),
+        mask=open(mask_filename, "rb"),
+        prompt=prompt,
+        n=n,
+        size=size,
+        response_format=response_format,
+        model="image-alpha-001"
+    )
+    image_url = str(data).split("url")[1][4:]
+    image_url = "\n".join(image_url.rsplit("\n", 3)[:-3])
 
+    return image_url[:-1]
+
+
+def download_image(url, filename):
     response = requests.get(url)
     with open(filename, "wb") as f:
         f.write(response.content)
@@ -40,24 +57,42 @@ def download_image(url, filename):
 
 def main():
     repo_dir = os.path.join(os.getcwd().split("\n")[0], "images")
+    mask_filename = "mask.png"  # Replace with actual mask file name and path
+    mask = Image.open(mask_filename).convert("RGBA")
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
+
+    if len(sys.argv) < 2:
+        print("Please provide a prompt or an image file name as the first argument.")
+        return
+
     prompt = sys.argv[1]
-    n = 1
+    n = int("1")
     size = "1024x1024"
     response_format = "url"
 
-    image_url = generate_image(prompt, n, size, response_format)
-    print("Generated image URL:", image_url)
-
-    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    if process_system.plat() == "Windows":
-        filename = repo_dir + "\\" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+    if len(sys.argv) == 3:
+        image_filename = sys.argv[2]
+        edit_filename = os.path.splitext(image_filename)[0] + "_edit.jpg"
+        image_url = create_image_edit(image_filename, mask_filename, prompt, int(n), size, response_format)
+        if image_url is not None:
+            download_image(image_url, edit_filename)
+            print("Generated image edited saved as:", edit_filename)
+        else:
+            print("Error generating image edited")
     else:
-        filename = repo_dir + "/" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+        image_url = generate_image(prompt, n, size, response_format)
+        print("Generated image URL:", image_url)
 
-    download_image(image_url, filename)
-    print("Downloaded image to:", filename)
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        if process_system.plat() == "Windows":
+            filename = repo_dir + "\\" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+        else:
+            filename = repo_dir + "/" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+
+        download_image(image_url, filename)
+        print("Downloaded image to:", filename)
+
 
 if __name__ == '__main__':
     main()
