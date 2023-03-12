@@ -79,28 +79,68 @@ def create_image_edit(image_filename, mask_filename, prompt, n=1, size="1024x102
     return image_url[:-1]
 
 
-def download_image(url, filename):
+def rename_image(text, proportion="1024x1024"):
+    current_time = datetime.now().strftime("%H-%M-%S")
+    filename, ext = os.path.splitext(text)
+    if "_" in filename:
+        parts = filename.split("_")
+        if parts[-1] == proportion:
+            # The filename already has the desired proportion
+            parts.pop()
+        elif "x" in parts[-1]:
+            # The filename has an old proportion that needs to be replaced
+            parts[-1] = proportion
+        else:
+            # The filename has additional parts that need to be removed
+            parts = parts[:1]
+    else:
+        # The filename has no proportions or additional parts
+        parts = [filename]
+    new_filename = f"{current_time}_{proportion}_{'_'.join(parts)}"
+    return new_filename.replace(" ", "_") + ext
+
+
+def download_image(url, text):
+    print("Generated image url: ", url)
+    current_date = datetime.now().strftime("%Y-%m-%d")
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    images_dir = os.path.join(script_dir, "images", current_date)
+    os.makedirs(images_dir, exist_ok=True)
+
+    filename = os.path.basename(text)
+    print(filename)
+    if os.path.isfile(text):
+        print("Text is a path")
+        file_path = os.path.join(images_dir, filename) + ".jpg"
+    else:
+        file_path = os.path.join(images_dir, rename_image(filename)) + ".jpg"
+
     response = requests.get(url)
-    with open(filename, "wb") as f:
+    with open(file_path, "wb") as f:
         f.write(response.content)
+    print("Downloaded image to:", file_path)
 
 
-def download_images(url_list, filename):
+def download_images(url_list, text):
     for url in url_list:
-        response = requests.get(url)
-        with open(filename, "wb") as f:
-            f.write(response.content)
+        download_image(url, text)
+
+
+def is_valid_image_proportion(text):
+    return text in ['1024x1024', '512x512', '256x256']
 
 
 def main():
-    repo_dir = os.path.join(os.getcwd().split("\n")[0], "images")
     mask_filename = "mask.png"  # Replace with actual mask file name and path
     # mask = Image.open(mask_filename).convert("RGBA")
-    if not os.path.exists(repo_dir):
-        os.mkdir(repo_dir)
 
     if len(sys.argv) < 2:
         print("Please provide a prompt or an image file name as the first argument.")
+        print("Usage: python image.py \"<text_prompt>\"")
+        print("python image.py \"<Path/To/Image>\"")
+        print("python image.py \"<text_prompt>\" \"<Path/To/Image>\"")
+        print("python image.py \"<text_prompt>\" \"<Path/To/Image>\" \"<Path/To/MaskImage.png>\"")
         return
 
     prompt = sys.argv[1]
@@ -109,26 +149,16 @@ def main():
     response_format = "url"
 
     if len(sys.argv) == 2:
-        print("ONE ARGUMENT")
         first_argument = sys.argv[1]
         if not os.path.isfile(first_argument):
             image_url = generate_image(prompt, n, size, response_format)
             print("Generated image URL:", image_url)
-
-            current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            if process_system.plat() == "Windows":
-                filename = repo_dir + "\\" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
-            else:
-                filename = repo_dir + "/" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
-
-            download_image(image_url, filename)
-            print("Downloaded image to:", filename)
+            download_image(image_url, prompt)
         else:
-            print("ONE IMAGE")
-            variation_filename = os.path.splitext(first_argument)[0] + "_var" + str(n) + ".jpg"
+            # AAAAAAAAAAA
+            filename = os.path.basename(first_argument)[9:-4]
             image_url = generate_image_variation(first_argument)
-            download_image(image_url, variation_filename)
-            print("Downloaded image to:", variation_filename)
+            download_image(image_url, filename)
     elif len(sys.argv) == 3:
         print("Two arguments")
         first_argument = sys.argv[1]
@@ -138,44 +168,45 @@ def main():
             print("TEXT + IMG")
             image_filename = sys.argv[2]
             edit_filename = os.path.splitext(image_filename)[0] + "_edit.jpg"
-            image_url = create_image_edit(image_filename, mask_filename, prompt, int(n), size, response_format)
-
+            if is_valid_image_proportion(second_argument_value):
+                image_url = create_image_edit(image_filename, mask_filename, prompt, 1, second_argument_value)
+            else:
+                print("Default value is used 1024x1024")
+                image_url = generate_image(image_filename, n, prompt)
             if image_url is not None:
                 download_image(image_url, edit_filename)
-                print("Generated image edited saved as:", edit_filename)
             else:
                 print("Error generating image edited")
         else:
-            n = second_argument_value
-
             if os.path.isfile(first_argument):
-                print("IMAGE + INTEGER")
-                print()
-                print("Call variation images")
-
-                variation_filename = os.path.splitext(first_argument)[0] + "_var" + str(n) + ".jpg"
-                image_url = generate_image_variation(first_argument, int(n))
-                download_image(image_url, variation_filename)
-                print("Downloaded images to:", variation_filename)
-            else:
-                print("TEXT + INTEGER :)")
-                print()
-                print("Call generate images")
-                image_url = generate_image(prompt, n, size, response_format)
-                print("Generated image URL:", image_url)
-
-                current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                if process_system.plat() == "Windows":
-                    filename = repo_dir + "\\" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",",
-                                                                                                            "").replace(
-                        ".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+                if is_valid_image_proportion(second_argument_value):
+                    variation_filename = os.path.splitext(first_argument)[0] + "_var" + str(n) + ".jpg"
+                    image_url = generate_image(prompt, int(n), second_argument_value)
+                    download_image(image_url, variation_filename)
                 else:
-                    filename = repo_dir + "/" + current_time + "_" + prompt[:20].replace(" ", "_").replace(",",
-                                                                                                           "").replace(
-                        ".", "").replace("'", "").replace(":", "").replace("\"", "") + ".jpg"
+                    print("IMAGE + INTEGER")
+                    print("second argument is an integer, we use the value of 2nd argument as 'n'")
+                    print()
+                    print("Call variation images")
 
-                download_image(image_url, filename)
-                print("Downloaded images to:", filename)
+                    variation_filename = os.path.splitext(first_argument)[0] + "_var" + str(n) + ".jpg"
+                    image_url = generate_image_variation(first_argument, int(n))
+                    download_image(image_url, variation_filename)
+            else:
+                if is_valid_image_proportion(second_argument_value):
+                    image_filename = os.path.splitext(first_argument)[0] + "_var" + str(n) + ".jpg"
+                    print(image_filename)
+                    image_url = generate_image(prompt, int(n), second_argument_value)
+                    download_image(image_url, image_filename)
+                else:
+                    print("TEXT + INTEGER :)")
+                    print("second argument is an integer, we use the value of 2nd argument as 'n'")
+                    print()
+                    print("Call generate images")
+
+                    image_url = generate_image(prompt, n, size, response_format)
+                    print("Generated image URL:", image_url)
+                    download_image(image_url, prompt)
     elif len(sys.argv) == 4:
         print("THREE ARGUMENTS")
         second_argument_value = sys.argv[2]
