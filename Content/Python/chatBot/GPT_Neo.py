@@ -32,9 +32,7 @@ def process_bot_answer(input_text, text_length=50):
     output_list = output_text.split("\n")
 
     for phrase in output_list:
-        if phrase == "":
-            output_list.remove(phrase)
-        elif not output_list[-1].endswith("."):
+        if not output_list[-1].endswith("."):
             output_list.pop()
         phrase = phrase[2:]
 
