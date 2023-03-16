@@ -99,7 +99,7 @@ def bot(prompt, lang_model=last_openai_model):
             return response
     elif model in non_openai_models:
         if model == "GPT-Neo":
-            print(GPT_Neo.process_bot_answer(prompt))
+            return GPT_Neo.process_bot_answer(prompt)
     else:
         show_error(model)
 
