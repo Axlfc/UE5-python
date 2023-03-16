@@ -1,24 +1,18 @@
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer
 from transformers import pipeline
 import sys
+import torch
 
 
-def main():
+def process_bot_answer(input_text, text_length=50):
     model_name = "EleutherAI/gpt-neo-125M"
-    # "EleutherAI/gpt-neo-1.3B"
-    # "EleutherAI/gpt-neo-2.7B"
-    # "EleutherAI/gpt-neo-125M"
-
-    # A 3000 value will produce a buffer overflow so we need to prevent that.
-
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     model = GPTNeoForCausalLM.from_pretrained(model_name)
-    input_text = sys.argv[1]
-    text_length = int(sys.argv[2])
-    input_ids = tokenizer.encode(input_text, return_tensors="pt")
+    input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to("cuda")
 
     generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B')
 
+    # A 3000 value will produce a buffer overflow so we need to prevent that.
     sample_outputs = model.generate(
         input_ids,
         do_sample=True,
@@ -29,8 +23,7 @@ def main():
         num_return_sequences=1,
         pad_token_id=generator.tokenizer.eos_token_id
     )
-    # output_text = generator(input_text, max_length=text_length, do_sample=True, temperature=0.9, pad_token_id=generator.tokenizer.eos_token_id)
-    # output_list = []
+
     output_text = tokenizer.decode(sample_outputs[0], skip_special_tokens=True)
 
     output_list = output_text.split("\n")
@@ -39,12 +32,34 @@ def main():
         if not output_list[-1].endswith("."):
             output_list.pop()
 
+    output_list.pop(0)
+
     text = ""
     for phrase in output_list:
         text += " " + phrase
 
-    print(text)
-    # return output_text
+    # Clean up resources
+    del model
+    del tokenizer
+    torch.cuda.empty_cache()
+
+    return text
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Please provide a text prompt as the first argument.")
+        return
+
+    if len(sys.argv) == 2:
+        input_text = sys.argv[1]
+        # Using default model as language_model
+    elif len(sys.argv) == 3:
+        input_text = sys.argv[1]
+        text_length = int(sys.argv[2])
+
+    print(process_bot_answer(input_text, text_length))
+    return(process_bot_answer(input_text, text_length))
 
 
 if __name__ == '__main__':
