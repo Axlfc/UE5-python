@@ -11,11 +11,10 @@ def process_bot_answer(input_text, text_length=50):
     model = GPTNeoForCausalLM.from_pretrained(model_name)
     model.to('cuda')
     input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to("cuda")
-    # input_ids = tokenizer(input_text, return_tensors="pt")
+    # input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to("cpu")
     generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B')
 
     # A 3000 value will produce a buffer overflow so we need to prevent that.
-    # input_ids = input_ids.to('cpu')
 
     sample_outputs = model.generate(
         input_ids,
@@ -33,8 +32,11 @@ def process_bot_answer(input_text, text_length=50):
     output_list = output_text.split("\n")
 
     for phrase in output_list:
-        if not output_list[-1].endswith("."):
+        if phrase == "":
+            output_list.remove(phrase)
+        elif not output_list[-1].endswith("."):
             output_list.pop()
+        phrase = phrase[2:]
 
     output_list.pop(0)
 
@@ -47,7 +49,7 @@ def process_bot_answer(input_text, text_length=50):
     del tokenizer
     torch.cuda.empty_cache()
 
-    return text
+    return text.lstrip()
 
 
 def main():
