@@ -4,8 +4,8 @@ import torch
 
 
 def process_bot_answer(input_text, text_length=50):
-    model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-7b1")
-    tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-7b1")
+    model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-560m")
+    tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-560m")
 
     # Tokenize the prompt and generate text using the BLOOM model
     inputs = tokenizer(input_text, return_tensors="pt")
@@ -44,7 +44,7 @@ def main():
         text_length = int(sys.argv[2])
 
     print(process_bot_answer(input_text, text_length))
-    return(process_bot_answer(input_text, text_length))
+    # return(process_bot_answer(input_text, text_length))
 
 
 if __name__ == '__main__':
