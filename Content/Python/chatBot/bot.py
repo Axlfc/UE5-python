@@ -2,7 +2,6 @@ import openai
 from dotenv import load_dotenv
 import os
 import sys
-import GPT_Neo
 
 
 # Description: Show list of all available models
@@ -68,6 +67,7 @@ non_openai_models = ["BLOOM",
                      "T5",
                      "UL2"]
 last_openai_model = "gpt-3.5-turbo-0301"
+# last_openai_model = "gpt-4"
 
 
 # Description: The
@@ -99,7 +99,11 @@ def bot(prompt, lang_model=last_openai_model):
             return response
     elif model in non_openai_models:
         if model == "GPT-Neo":
+            import GPT_Neo
             return GPT_Neo.process_bot_answer(prompt)
+        elif model == "BLOOM":
+            import BLOOM
+            return BLOOM.process_bot_answer(prompt)
     else:
         show_error(model)
 
