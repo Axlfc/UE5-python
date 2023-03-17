@@ -43,8 +43,8 @@ def main():
         input_text = sys.argv[1]
         text_length = int(sys.argv[2])
 
-    print(process_bot_answer(input_text, text_length))
-    # return(process_bot_answer(input_text, text_length))
+    # print(process_bot_answer(input_text, text_length))
+    return(process_bot_answer(input_text, text_length))
 
 
 if __name__ == '__main__':
