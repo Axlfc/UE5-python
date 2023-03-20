@@ -44,28 +44,22 @@ all_language_models_available = ["text-curie-001",
                                  "gpt-3.5-turbo-0301",
                                  "BLOOM",
                                  "FLAN-T5",
-                                 "FLAN-UL2",
                                  "GALACTICA",
-                                 "GPT-J 6B",
                                  "GPT-Neo",
-                                 "GPT-Neox",
                                  "mT5",
                                  "OPT",
                                  "Pygmalion",
                                  "T5",
-                                 "UL2"]
+                                 "santacoder"]
 non_openai_models = ["BLOOM",
                      "FLAN-T5",
-                     "FLAN-UL2",
                      "GALACTICA",
-                     "GPT-J 6B",
                      "GPT-Neo",
-                     "GPT-Neox",
                      "mT5",
                      "OPT",
                      "Pygmalion",
                      "T5",
-                     "UL2"]
+                     "santacoder"]
 last_openai_model = "gpt-3.5-turbo-0301"
 # last_openai_model = "gpt-4"
 
