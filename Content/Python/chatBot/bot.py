@@ -107,9 +107,13 @@ def bot(prompt, lang_model=last_openai_model):
         elif model == "FLAN-T5":
             import FLAN_T5
             return FLAN_T5.process_bot_answer(prompt)
-        elif model == "FLAN-UL2":
-            import FLAN_UL2
-            return FLAN_UL2.process_bot_answer(prompt)
+        elif model == "GALACTICA":
+            import GALACTICA
+            return GALACTICA.process_bot_answer(prompt)
+        elif model == "OPT":
+            import OPT
+            return OPT.process_bot_answer(prompt)
+
 
     else:
         show_error(model)
