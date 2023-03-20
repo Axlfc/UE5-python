@@ -1,25 +1,25 @@
-from transformers import GPTJForCausalLM, GPT2Tokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+# import torch
+import sys
+
+current_model_name = "EleutherAI/gpt-j-6B"
+
+
+def process_bot_answer(input_text):
+    tokenizer = AutoTokenizer.from_pretrained(current_model_name)
+    model = AutoModelForCausalLM.from_pretrained(current_model_name)
+
+    return pipeline("text-generation", model=model, tokenizer=tokenizer, device=0)
 
 
 def main():
-    model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
-    tokenizer = GPT2Tokenizer.from_pretrained("EleutherAI/gpt-j-6B")
+    if len(sys.argv) < 2:
+        print("Please provide a text prompt as the first argument.")
+        return
 
-    input_text = "I want to generate some text using GPT-J 6B."
-    input_ids = tokenizer.encode(input_text, return_tensors="pt")
-
-    sample_output = model.generate(
-        input_ids,
-        do_sample=True,
-        max_length=50,
-        top_p=0.92,
-        top_k=0,
-        temperature=1.0,
-        num_return_sequences=1
-    )
-
-    output_text = tokenizer.decode(sample_output[0], skip_special_tokens=True)
-    print(output_text)
+    answer = process_bot_answer(sys.argv[1])
+    print(answer)
+    return answer
 
 
 if __name__ == '__main__':
