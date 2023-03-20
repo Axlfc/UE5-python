@@ -3,6 +3,10 @@ import torch
 import sys
 
 
+models = ["galactica-125m", "galactica-1.3b", "galactica-6.7b", "galactica-30b", "galactica-120b"]
+current_model_name = "facebook/" + models[0]
+
+
 def process_bot_answer(input_text, text_length=200):
     tokenizer = AutoTokenizer.from_pretrained("facebook/galactica-125m")
     model = OPTForCausalLM.from_pretrained("facebook/galactica-125m", device_map="auto")

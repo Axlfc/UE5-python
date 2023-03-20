@@ -3,9 +3,14 @@ import sys
 import torch
 
 
+models = ["bloom-560m", "bloom-1b1", "bloom-1b7", "bloom-3b", "bloom-7b1", "bloom"]
+current_model_name = "bigscience/" + models[0]
+
+
 def process_bot_answer(input_text, text_length=50):
-    model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-560m")
-    tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-560m")
+
+    model = AutoModelForCausalLM.from_pretrained(current_model_name)
+    tokenizer = AutoTokenizer.from_pretrained(current_model_name)
 
     # Tokenize the prompt and generate text using the BLOOM model
     inputs = tokenizer(input_text, return_tensors="pt")

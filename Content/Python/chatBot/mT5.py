@@ -1,20 +1,37 @@
-from transformers import MT5ForConditionalGeneration, MT5Tokenizer
+from transformers import MT5Model, AutoTokenizer
+import sys
+# pip3 install sentencepiece requests_html
+
+models = ["mt5-small", "mt5-base", "mt5-large", "mt5-xl", "mt5-xxl"]
+current_model_name = "google/" + models[0]
+
+
+def generate(article, summary, tokenizer, model):
+    inputs = tokenizer(article, return_tensors="pt")
+    labels = tokenizer(text_target=summary, return_tensors="pt")
+
+    outputs = model(input_ids=inputs["input_ids"], decoder_input_ids=labels["input_ids"])
+
+    hidden_states = outputs.last_hidden_state
+
+    return outputs
+
+
+def process_bot_answer(input_text, summary_text):
+    model = MT5Model.from_pretrained(current_model_name)
+    tokenizer = AutoTokenizer.from_pretrained(current_model_name)
+
+    return generate(input_text, summary_text, tokenizer, model)
 
 
 def main():
-    # Load the mT5 model and tokenizer
-    model_name = 'google/mt5-small'
-    tokenizer = MT5Tokenizer.from_pretrained(model_name)
-    model = MT5ForConditionalGeneration.from_pretrained(model_name)
+    if len(sys.argv) < 3:
+        print("Please provide a text prompt as the first argument and a summary as the second.")
+        return
 
-    # Set the input prompt and generate text
-    prompt = "translate English to French: Hello, how are you?"
-    inputs = tokenizer.encode(prompt, return_tensors="pt")
-    outputs = model.generate(inputs, max_length=128, num_beams=4, early_stopping=True)
-
-    # Decode the output and print the generated text
-    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    print(generated_text)
+    answer = process_bot_answer(sys.argv[1], sys.argv[2])
+    print(answer)
+    return answer
 
 
 if __name__ == '__main__':

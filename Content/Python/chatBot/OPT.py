@@ -1,29 +1,31 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import pipeline, set_seed
+import sys
+
+models = ["opt-125m", "opt-350m", "opt-1.3b", "opt-2.7b", "opt-6.7b", "opt-13b", "opt-30b", "opt-66b"]
+current_model_name = "facebook/" + models[0]
+
+
+def process_bot_answer(input_text, seed=None):
+    if seed is None:
+        generator = pipeline('text-generation', model=current_model_name)
+    else:
+        set_seed(seed)
+        generator = pipeline('text-generation', model=current_model_name, do_sample=True)
+    return generator(input_text)[0]["generated_text"]
 
 
 def main():
-    model_name = "facebook/opt-6.7b"
-    # "facebook/opt-6.7b"
-    # "facebook/opt-2.7b"
-    # "facebook/opt-1.3b"
-    # facebook/opt-350m"
+    if len(sys.argv) < 2:
+        print("Please provide a text prompt as the first argument or a text prompt and a seed.")
+        return
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
-    input_text = "I want to generate some text using OPT 6.7b."
-    input_ids = tokenizer.encode(input_text, return_tensors="pt")
+    if len(sys.argv) == 2:
+        answer = process_bot_answer(sys.argv[1])
+    elif len(sys.argv) == 3:
+        answer = process_bot_answer(sys.argv[1], int(sys.argv[2]))
 
-    sample_outputs = model.generate(
-        input_ids,
-        do_sample=True,
-        max_length=50,
-        top_k=0,
-        temperature=0.7,
-        num_return_sequences=1
-    )
-
-    output_text = tokenizer.decode(sample_outputs[0], skip_special_tokens=True)
-    print(output_text)
+    print(answer)
+    return answer
 
 
 if __name__ == '__main__':

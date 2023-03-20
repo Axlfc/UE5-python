@@ -6,6 +6,18 @@ from sklearn.preprocessing import LabelEncoder
 from nltk.collocations import BigramAssocMeasures, BigramCollocationFinder
 #nltk.download('vader_lexicon')
 
+from transformers import pipeline
+
+classifier = pipeline(
+    "text-classification", 
+    model="j-hartmann/emotion-english-distilroberta-base", 
+    return_all_scores=True
+)
+
+def classify(txt_input):
+	return classifier(txt_input)
+	
+
 # Compile a large corpus of text data
 corpus = "I feel sad today. I am very sad. The sky is cloudy and it's raining. I don't want to go outside."
 

@@ -4,15 +4,18 @@ import sys
 import torch
 
 
-def process_bot_answer(input_text, text_length=50):
-    model_name = "EleutherAI/gpt-neo-125M"
-    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+models = ["gpt-neo-125M", "gpt-neo-1.3B", "gpt-neo-2.7B"]
+current_model_name = "EleutherAI/" + models[0]
 
-    model = GPTNeoForCausalLM.from_pretrained(model_name)
+
+def process_bot_answer(input_text, text_length=50):
+    tokenizer = GPT2Tokenizer.from_pretrained(current_model_name)
+
+    model = GPTNeoForCausalLM.from_pretrained(current_model_name)
     model.to('cuda')
     input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to("cuda")
     # input_ids = tokenizer(input_text, return_tensors="pt").input_ids.to("cpu")
-    generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B')
+    generator = pipeline('text-generation', model=current_model_name)
 
     # A 3000 value will produce a buffer overflow so we need to prevent that.
 
