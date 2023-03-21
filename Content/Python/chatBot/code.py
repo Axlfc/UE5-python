@@ -66,8 +66,8 @@ def main():
             bot.show_error(sys.argv[2])
 
     if max_length is not None:
-        print(code(user_prompt, language_model, max_length))
-        return code(user_prompt, language_model, max_length)
+        print(code(user_prompt, language_model, int(max_length)))
+        return code(user_prompt, language_model, int(max_length))
     else:
         print(code(user_prompt, language_model))
         return code(user_prompt, language_model)
