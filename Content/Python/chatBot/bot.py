@@ -107,6 +107,9 @@ def bot(prompt, lang_model=last_openai_model):
         elif model == "OPT":
             import OPT
             return OPT.process_bot_answer(prompt)
+        elif model == "Pygmalion":
+            import Pygmalion
+            return Pygmalion.process_bot_answer(prompt)
         elif model == "santacoder":
             import santacoder
             return santacoder.process_bot_answer(prompt)
