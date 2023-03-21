@@ -48,12 +48,13 @@ def main():
     if len(sys.argv) == 2:
         input_text = sys.argv[1]
         # Using default model as language_model
+        print(process_bot_answer(input_text))
+        return process_bot_answer(input_text)
     elif len(sys.argv) == 3:
         input_text = sys.argv[1]
         text_length = int(sys.argv[2])
-
-    print(process_bot_answer(input_text, text_length))
-    return (process_bot_answer(input_text, text_length))
+        print(process_bot_answer(input_text, text_length))
+        return process_bot_answer(input_text, text_length)
 
 
 if __name__ == '__main__':
