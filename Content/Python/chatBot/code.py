@@ -30,6 +30,7 @@ def code(prompt, lang_model=bot.last_openai_model, text_length=256):
     else:
         bot.show_error(model)
 
+
 def main():
     if len(sys.argv) < 2:
         print("Please provide a text prompt as the first argument.")
