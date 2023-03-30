@@ -12,7 +12,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 os.environ['MOZ_HEADLESS'] = '1'
 
-firefox_profile_path = os.path.expanduser("~") + os.sep + 'AppData' + os.sep + 'Local' + os.sep + 'Mozilla' + os.sep + 'Firefox' + os.sep + 'Profiles' + os.sep + 'inmersprofile.default-release'
+if process_system.plat() == "Windows":
+    firefox_profile_path = os.path.expanduser("~") + os.sep + 'AppData' + os.sep + 'Local' + os.sep + 'Mozilla' + os.sep + 'Firefox' + os.sep + 'Profiles' + os.sep + 'inmersprofile.default-release'
+else:
+    firefox_profile_path = os.path.expanduser("~") + "/snap/firefox/common/.mozilla/firefox/inmersprofile.default-release"
 
 if not os.path.exists(firefox_profile_path):
     os.mkdir(firefox_profile_path)
