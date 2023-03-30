@@ -2,17 +2,18 @@ import os
 import sys
 import time
 import colorama
-import process_system
+import platform
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.service import Service
 
 os.environ['MOZ_HEADLESS'] = '1'
 
-if process_system.plat() == "Windows":
+if platform.system() == "Windows":
     firefox_profile_path = os.path.expanduser("~") + os.sep + 'AppData' + os.sep + 'Local' + os.sep + 'Mozilla' + os.sep + 'Firefox' + os.sep + 'Profiles' + os.sep + 'inmersprofile.default-release'
 else:
     firefox_profile_path = os.path.expanduser("~") + "/snap/firefox/common/.mozilla/firefox/inmersprofile.default-release"
@@ -24,12 +25,17 @@ if not os.path.exists(firefox_profile_path):
 firefox_options = webdriver.FirefoxOptions()
 
 firefox_options.add_argument('--profile')
+
 firefox_options.add_argument(firefox_profile_path)
 
+service = Service(log_path=os.devnull)
+
 # Create a new Firefox driver with your options
-driver = webdriver.Firefox(options=firefox_options)
-driver.quit()
-driver = webdriver.Firefox(options=firefox_options)
+try:
+    driver = webdriver.Firefox(options=firefox_options, service=service)
+except:
+    driver.quit()
+
 
 # Load the Inmers web app
 driver.get("https://inmers.com")
@@ -44,7 +50,7 @@ def add_message(message, initialtime):
     date = now.strftime("%Y-%m-%d")
     repo_dir = os.path.join(os.path.abspath(__file__)[:-10].split("\n")[0], "conversations")
 
-    if process_system.plat() == "Windows":
+    if platform.system() == "Windows":
         x = repo_dir + "\\" + date
         filepath = x + "\\" + initialtime + ".txt"
     else:
