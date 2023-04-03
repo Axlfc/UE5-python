@@ -42,6 +42,10 @@ all_language_models_available = ["text-curie-001",
                                  "ada",
                                  "gpt-3.5-turbo",
                                  "gpt-3.5-turbo-0301",
+                                 "gpt-4", 
+                                 "gpt-4-0314", 
+                                 "gpt-4-32k", 
+                                 "gpt-4-32k-0314",
                                  "BLOOM",
                                  "FLAN-T5",
                                  "GALACTICA",
@@ -73,7 +77,7 @@ def bot(prompt, lang_model=last_openai_model):
         load_dotenv()
         openai.api_key = os.environ["OPENAI_API_KEY"]
 
-        if "turbo" in model:
+        if "turbo" in model or "gpt-4" in model:
             completion = openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}]
