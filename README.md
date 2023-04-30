@@ -4,33 +4,6 @@ Let's test this Python-Unreal Engine 5 thing for Video Game Production Managemen
 
 Project Settings -> Plugins -> Python and enable developer mode.
 
-# chatBot
-For running it on Windows or Android (Termux App) follow the section Manual Installation down on this post. 
-
-- Install it on GNU/Linux (Easiest way)
-
-<code>sudo apt-get install -y git python3 build-essential portaudio19-dev</code>
- 
-<code>git clone https://github.com/AleixMT/Linux-Auto-Customizer</code>
-
-<code>cd Linux-Auto-Customizer</code>
-
-<code>git checkout chatGPT_feature</code>
-
-<code>bash src/core/install.sh -v -o chatGPT</code>
-
-Get your openAI API key (Go to [openai webpage](https://beta.openai.com/account/api-keys) to get yours)
-
-Change 'your_API_key_value' to the one you got from openai webpage before running the next command:
-
-<code>echo "OPENAI_API_KEY=your_API_key_value" > ~/.customizer/bin/chatGPT/Content/Python/chatBot/.env</code>
-
-<code>bash</code>
-
-That's it, now just type **chatGPT** in the console and magic happens.
-
-Use 'exit' or 'quit' words to end the conversation.
-
 <code>chatGPT</code>
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
