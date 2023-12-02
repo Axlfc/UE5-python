@@ -8,7 +8,7 @@ Project Settings -> Plugins -> Python and enable developer mode.
 
 Create the folder ``Content/Python`` in your new or already existing Unreal Engine 5 project or you can use the folder in this repository as example.
 
-<details open>
+<details>
   <summary>Content/Python</summary>
   <ul>
     <li>
