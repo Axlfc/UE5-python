@@ -4,17 +4,156 @@ Let's test this Python-Unreal Engine 5 thing for Video Game Production Managemen
 
 Project Settings -> Plugins -> Python and enable developer mode.
 
+## Project Folder Structure in Unreal to Run Python scripts
+
+Create the folder ``Content/Python`` in your new or already existing Unreal Engine 5 project or you can use the folder in this repository as example.
+
+<details open>
+  <summary>Content/Python</summary>
+  <ul>
+    <li>
+      <details open>
+        <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/README.md">data</a></summary>
+        <ul>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/README.md">models</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/BLOOM.py">BLOOM.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/FLAN_T5.py">FLAN_T5.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/GALACTICA.py">GALACTICA.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/GPT_Neo.py">GPT_Neo.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/mT5.py">mT5.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/OPT.py">OPT.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/Pygmalion.py">Pygmalion.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/santacoder.py">santacoder.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/models/T5.py">T5.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/scripts/README.md">scripts</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/data/scripts/get_huggingface_model_disk_space.py">get_huggingface_model_disk_space.py</a></li>
+            </ul>
+          </details>
+        </ul>
+      </details>
+    </li>
+    <li>
+      <details open>
+        <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/README.md">src</a></summary>
+        <ul>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/README.md">audio</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/denoise.py">denoise.py</a></li>
+              <details open>
+                <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/music/README.md">music</a></summary>
+                <ul>
+                  <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/music/music.py">music.py</a></li>
+                  <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/music/test.mid">test.mid</a></li>
+                </ul>
+              </details>
+              <details open>
+                <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/voice/README.md">voice</a></summary>
+                <ul>
+                  <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/voice/bella.wav">bella.wav</a></li>
+                  <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/audio/voice/voice_cloning.py">voice_cloning.py</a></li>
+                </ul>
+              </details>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/bot/README.md">bot</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/bot/bot.py">bot.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/README.md">core</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/playaudio.py">playaudio.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/process_system.py">process_system.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/talk.py">talk.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/termux_audio.py">termux_audio.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/core/translator.py">translator.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/image/README.md">image</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/image/image.py">image.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/image/leonardo_ai.py">leonardo_ai.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/README.md">text</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/code.py">code.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/content_creator.py">content_creator.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/conversate.py">conversate.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/emotion.py">emotion.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/google.py">google.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/plot.py">plot.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/src/text/vm.py">vm.py</a></li>
+            </ul>
+          </details>
+        </ul>
+      </details>
+    </li>
+    <li>
+      <details open>
+        <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/README.md">test</a></summary>
+        <ul>
+          <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/act.py">act.py</a></li>
+          <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/auto_interact.py">auto_interact.py</a></li>
+          <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/GPT_4.py">GPT_4.py</a></li>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/HoudiniFX/README.md">HoudiniFX</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/HoudiniFX/houdini.py">houdini.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/redditBot/README.md">redditBot</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/redditBot/reddit.py">reddit.py</a></li>
+            </ul>
+          </details>
+          <details open>
+            <summary><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/twitBot/README.md">twitBot</a></summary>
+            <ul>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/twitBot/quotes.json">quotes.json</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/twitBot/scrape_company_twitter.py">scrape_company_twitter.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/twitBot/twitBot.py">twitBot.py</a></li>
+              <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/test/twitBot/twit.py">twit.py</a></li>
+            </ul>
+          </details>
+        </ul>
+      </details>
+    </li>
+  </ul>
+  <ul>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/init_level.py">init_level.py</a></li>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/init_unreal.py">init_unreal.py</a></li>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/material_instance_tools.py">material_instance_tools.py</a></li>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/material_tools.py">material_tools.py</a></li>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/scoped_slow_task.py">scoped_slow_task.py</a></li>
+    <li><a href="https://github.com/Axlfc/UE5-Python/blob/master/Content/Python/script.py">script.py</a></li>
+  </ul>
+</details>
+
+
+🐍 Welcome to UE5-python, the Python-Unreal Engine 5 integration project designed for Video Game Production Management! Dive into the possibilities of using Python scripts within Unreal Engine 5 to streamline your game development workflow. Whether you're a seasoned developer or just getting started, this project aims to provide a comprehensive set of tools and scripts to enhance your Unreal Engine experience. Explore the project structure, contribute to its growth, and let's collectively push the boundaries of game development with the power of Python and Unreal Engine 5.
+
+## Manual installation
+
 <code>chatGPT</code>
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4b5d17paxtu21mc9rdo2.jpg" width=200px></img></center>
 
-You can use **talkGPT** (but not yet in Android) to talk to the console and the AI will respond using a custom voice too.
+You can use **talkGPT** to talk to the console and the AI will respond using a custom voice too.
 
 <code>talkGPT</code>
-
-#### TODO (known bugs):
-* Voice to text recognizement & pytorch install seems not to work in Android (Termux)
-* real-time history for conversate.py and talk.py
 
 Also you can generate code using the function **codeGPT** to generate code when commentaries are passed to it.
 
@@ -149,29 +288,27 @@ Windows:
 
 <center><img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ht3n6gzwq3r9w9721dq3.png"></img></center>
 
-There are more scripts inside the chatBot folder, you can check them out too.
+## Contributing
 
-# twitterBot
+Contributions are welcome! If you want to contribute to this project, please follow these steps:
 
-Twitter stuff
-(API bot)
-(Scraping engine)
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix: `git checkout -b feature-name`.
+3. Commit your changes: `git commit -m 'Description of your changes'`.
+4. Push to your fork: `git push origin feature-name`.
+5. Create a pull request.
 
-# redditBot
+## License
 
-Reddit stuff
-(API bot)
-(Scraping engine)
+This project is licensed under the GNU General Public License v2.0 - see the [LICENSE.md](LICENSE.md) file for details.
 
-# HoudiniFX
+## Issues
 
-Test script with hython3.9.exe from Houdinit's folder.
-<code>hython3.9.exe houdini.py</code>
+If you encounter any issues with the project, have a feature request, or want to discuss something, please [create an issue](https://github.com/Axlfc/UE5-Python/issues).
 
+# Give a star to this project and let me know where you ended at with your Game Developing skils in Unreal Engine 5 using python! :)
 
-#### TODO:
-* Trick houdini to be able to import hou module correctly in houdini.py script using a regular python3 version trying to not rely on hython.
+e-mail: axlffcc@gmail.com
 
-# Blender
-
-Nothing yet
+[![Paypal Badge](https://img.shields.io/badge/Paypal-ffffff?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/axelcurros)
+[![Revolut Badge](https://img.shields.io/badge/Revolut-ffffff?style=for-the-badge&logo=paypal&logoColor=white)](https://revolut.me/afaces)

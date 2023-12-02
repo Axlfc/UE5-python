@@ -1,0 +1,6 @@
+python-dotenv
+openai
+transformers
+colorama
+requests
+requests-html

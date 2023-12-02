@@ -1,0 +1,8 @@
+pyaudio
+colorama
+SpeechRecognition
+python-magic
+langdetect
+jiwer
+git+https://github.com/openai/whisper.git#egg=whisper
+googletrans==4.0.0-rc1

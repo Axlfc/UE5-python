@@ -1,11 +1,13 @@
-import bot
 import os
 import sys
-import translator as translate
-import process_system
 import conversate
 import colorama
-import voice_cloning as voice
+
+from Content.Python.src.bot import bot
+from Content.Python.src.core import translator as translate
+from Content.Python.src.core import process_system
+from Content.Python.src.audio.voice import voice_cloning as voice
+
 
 
 def main():

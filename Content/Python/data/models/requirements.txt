@@ -1,0 +1,5 @@
+torch
+transformers
+accelerate
+sentencepiece
+requests_html

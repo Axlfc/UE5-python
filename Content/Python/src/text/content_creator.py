@@ -1,7 +1,9 @@
 from transformers import pipeline
 import sys
 import os
-import process_system
+
+from Content.Python.src.core import process_system
+
 
 def format_output(out):
     str(out)

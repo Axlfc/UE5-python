@@ -2,7 +2,8 @@ import openai
 from dotenv import load_dotenv
 import os
 import sys
-import bot
+
+from Content.Python.src.bot import bot
 
 
 def code(prompt, lang_model=bot.last_openai_model, text_length=256):

@@ -1,8 +1,9 @@
-import bot
 import colorama
 import os
 from datetime import datetime
-import process_system
+
+from Content.Python.src.bot import bot
+from Content.Python.src.core import process_system
 
 
 def add_message(message, initialtime):

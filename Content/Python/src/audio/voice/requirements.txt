@@ -1,0 +1,6 @@
+gitpython
+setuptools
+soundfile
+gdown
+numpy
+librosa

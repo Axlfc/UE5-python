@@ -1,8 +1,10 @@
 import platform
 import os
 
+
 def plat():
     return platform.system()
+
 
 def process_pythonversion(platf):
     if platf == "Linux":

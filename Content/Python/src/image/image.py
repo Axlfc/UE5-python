@@ -5,9 +5,6 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 import sys
-import process_system
-from PIL import Image
-import base64
 
 load_dotenv()
 openai.api_key = os.environ["OPENAI_API_KEY"]
