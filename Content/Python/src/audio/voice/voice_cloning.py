@@ -9,7 +9,20 @@ import gdown
 from pathlib import Path
 import numpy as np
 import librosa
-import process_system
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Move five levels up to find the 'UE5-python' directory
+ue5_python_dir = os.path.abspath(os.path.join(script_dir, '..', '..', '..', '..', '..'))
+
+# Add the directory to sys.path
+sys.path.append(ue5_python_dir)
+
+# print(sys.path)
+
+from Content.Python.src.core import process_system
+
 
 def pip_install(package):
     query = []
@@ -171,10 +184,12 @@ def main():
             generated_audio = audio
         else:
             generated_audio = np.append(generated_audio, audio)
+    # TODO: add wav file filename to the output file
+    filename_prefix = os.path.splitext(os.path.basename(audiopath))[0]  # Extracting filename without extension
     if process_system.plat() == "Windows":
-        filename = repo_dir + "\\" + "outputs" + "\\" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
+        filename = repo_dir + "\\" + "outputs" + "\\" + filename_prefix + "_" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
     else:
-        filename = repo_dir + "/" + "outputs" + "/" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
+        filename = repo_dir + "/" + "outputs" + "/" + filename_prefix + "_" + text[:20].replace(" ", "_").replace(",", "").replace(".", "").replace("'", "").replace(":", "").replace("\"", "") + ".wav"
 
     sf.write(filename, generated_audio.astype(np.float32), synthesizer.sample_rate)
 
