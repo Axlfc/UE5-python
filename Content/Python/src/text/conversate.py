@@ -62,12 +62,6 @@ def add_message(message, initialtime):
 
 
 # Description:
-def process_bot_answer():
-    print(bot.selected_language_model(bot.all_language_models_available, bot.non_openai_models, bot.main.selected_model))
-    pass
-
-
-# Description:
 def conversate(model=bot.last_openai_model):
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
