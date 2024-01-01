@@ -1,6 +1,7 @@
 python-dotenv
-openai
+openai==v0.28.1
 transformers
 colorama
 requests
 requests-html
+langchain

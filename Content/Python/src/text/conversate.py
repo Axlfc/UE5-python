@@ -6,6 +6,39 @@ import sys
 from Content.Python.src.bot import bot
 from Content.Python.src.core import process_system
 
+from dotenv import load_dotenv
+from pathlib import Path
+
+dotenv_path = Path('../bot/.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+# openai_key = os.environ["OPENAI_API_KEY"]
+
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
+
+from langchain.prompts.chat import (
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+)
+
+system_template = SystemMessagePromptTemplate.from_template("You are an AI assistant.")
+user_template = HumanMessagePromptTemplate.from_template("{user_prompt}")
+template = ChatPromptTemplate.from_messages([system_template, user_template])
+
+# Initialize LangChain components
+llm = ChatOpenAI()
+memory = ConversationBufferMemory(return_messages=True)
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=False
+)
+chain = LLMChain(llm=llm, memory=memory, prompt=template, verbose=False)
+
 
 # Description:
 # Argument 1:
@@ -46,7 +79,13 @@ def conversate(model=bot.last_openai_model):
         if model in bot.non_openai_models:
             bot_answer = bot.bot(text, model)
         else:
-            bot_answer = bot.bot(text)
+            response = conversation.predict(input=text)  # Predict using chain with memory
+            bot_answer = response
+
+            # Save to memory only if the AI response is not empty
+
+            if bot_answer.strip():
+                memory.save_context({"input": text}, {"output": bot_answer})
 
         add_message(bot_answer, initial_time)
         print(colorama.Fore.GREEN + bot_answer)

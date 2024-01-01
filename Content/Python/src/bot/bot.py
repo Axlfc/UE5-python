@@ -64,8 +64,8 @@ non_openai_models = ["BLOOM",
                      "Pygmalion",
                      "T5",
                      "santacoder"]
-last_openai_model = "gpt-3.5-turbo-0301"
-# last_openai_model = "gpt-4"
+# last_openai_model = "gpt-3.5-turbo-0301"
+last_openai_model = "gpt-4"
 
 
 # Description: The
@@ -75,14 +75,14 @@ def bot(prompt, lang_model=last_openai_model):
     model = selected_language_model(all_language_models_available, non_openai_models, lang_model)
     if model in all_language_models_available and model not in non_openai_models:
         load_dotenv()
-        openai.api_key = os.environ["OPENAI_API_KEY"]
+        client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
         if "turbo" in model or "gpt-4" in model:
-            completion = openai.ChatCompletion.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}]
+            chat_completion = client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model=model
             )
-            return str(completion.choices[0]).split("content")[1][4:].split("role")[0][:-1].replace('\n', '\n')[:-7].encode('utf-8').decode('unicode_escape')
+            return chat_completion.choices[0].message.content
         else:
             completions = openai.Completion.create(
                 engine=model,
