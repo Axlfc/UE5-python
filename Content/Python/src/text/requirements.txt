@@ -5,3 +5,4 @@ colorama
 requests
 requests-html
 langchain
+bs4
