@@ -1,5 +1,7 @@
+import platform
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 import json
 
@@ -68,7 +70,7 @@ def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", c
             tools=tools,
             model=model
         )
-        print(f"Assistant created: {assistant.id}")
+        # print(f"Assistant created: {assistant.id}")
         save_assistant_data(assistant.id, assistant_name, None, file_path)
         return assistant.id
 
@@ -82,7 +84,7 @@ def create_thread(assistant_name, assistant_id, file_path='assistants_data.json'
 
     # Create a new thread if no existing thread ID
     thread = client.beta.threads.create()
-    print(f"Thread created: {thread.id}")
+    # print(f"Thread created: {thread.id}")
 
     # Update the assistant data with the new thread ID
     save_assistant_data(assistant_id, assistant_name, thread.id, file_path)
@@ -150,13 +152,34 @@ def extract_value_from_response(response):
     return extracted_content.split("\n")
 
 
-def check_assistant(name, instructions):
-    pass
+def add_message(message, initialtime):
+    now = datetime.now()
+    time = now.strftime("%H-%M-%S")
+    date = now.strftime("%Y-%m-%d")
+    repo_dir = os.path.join(os.path.abspath(__file__)[:-14].split("\n")[0], "conversations")
+    if platform.system() == "Windows":
+        x = repo_dir + "\\" + date
+        filepath = x + "\\" + initialtime + ".txt"
+    else:
+        x = repo_dir + "/" + date
+        filepath = x + "/" + initialtime + ".txt"
+    if not os.path.exists(x):
+        os.mkdir(x)
+
+    with open(filepath, "a", encoding="utf-8") as f:
+        f.write(time.strip() + ": " + message.strip() + "\n")
+
+
+def setup_assistant(assistant_name="Assistant", instructions=""):
+    return assistant_name, instructions
 
 
 def main():
-    assistant_name = "Math Tutor"
-    instructions = "You are a personal math tutor. Write and run code to answer math questions."
+    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+    assistant_name, instructions = setup_assistant(
+        "Math Tutor",
+        "You are a personal math tutor. Write and run code to answer math questions."
+    )
     assistant_id = create_assistant(assistant_name, instructions, code=True)
     print(f"{assistant_name} Assistant loaded.")
 
