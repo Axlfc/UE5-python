@@ -12,13 +12,8 @@ sys.path.append(str(content_path))
 from Content.Python.src.bot import bot
 from Content.Python.src.core import process_system
 
-
 dotenv_path = Path('../bot/.env')
 load_dotenv(dotenv_path=dotenv_path)
-
-
-
-# openai_key = os.environ["OPENAI_API_KEY"]
 
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate

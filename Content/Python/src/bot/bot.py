@@ -1,8 +1,14 @@
-import openai
 from dotenv import load_dotenv
 import os
 import sys
 
+from pathlib import Path
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
+
+from Content.Python_dependencies.old_openai import openai as old_openai
+from Content.Python_dependencies.latest_openai import openai as latest_openai
 
 # Description: Show list of all available models
 # Argument 1: The name of the selected invalid string of the model
@@ -64,8 +70,9 @@ non_openai_models = ["BLOOM",
                      "Pygmalion",
                      "T5",
                      "santacoder"]
-last_openai_model = "gpt-3.5-turbo-0301"
-# last_openai_model = "gpt-4"
+#  last_openai_model = "gpt-3.5-turbo-0301"
+last_openai_model = "gpt-4"
+
 
 # Description: The
 # Argument 1: The text prompt of the user
@@ -75,10 +82,10 @@ def bot(prompt, lang_model=last_openai_model):
     if model in all_language_models_available and model not in non_openai_models:
         load_dotenv()
 
-        openai.api_key = os.environ["OPENAI_API_KEY"]
+        old_openai.api_key = os.environ["OPENAI_API_KEY"]
 
         if "gpt-3.5-turbo" in model:
-            completion = openai.ChatCompletion.create(
+            completion = latest_openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}]
             )
@@ -86,14 +93,14 @@ def bot(prompt, lang_model=last_openai_model):
                    :-7].encode('utf-8').decode('unicode_escape')
         elif "gpt-4" in model:
             #  Here we will enter when langchain and openai libraries work together in further updates
-            client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+            client = latest_openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
             chat_completion = client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
                 model=model
             )
             return chat_completion.choices[0].message.content
         else:
-            completions = openai.Completion.create(
+            completions = old_openai.Completion.create(
                 engine=model,
                 prompt=prompt,
                 max_tokens=1024,

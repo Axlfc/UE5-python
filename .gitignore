@@ -1,3 +1,5 @@
 .env
 .idea
 geckodriver.log
+
+Python_dependencies

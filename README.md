@@ -169,7 +169,32 @@ to prove it"</code>
 <code>talkGPT "Tell me any playing card"</code>
 
 
-## chatBot manual installation
+# chatBot manual installation
+
+## Managing Multiple Versions of OpenAI Package
+
+In this project, we use different versions of the `openai` package to leverage specific features and functionalities. To handle multiple versions effectively, we install each version in a separate directory within the `Python_dependencies` folder. This section guides you through setting up these dependencies.
+
+### Installation Steps
+
+1. **Create a Dependencies Directory**: 
+   If you haven't already, create a folder named `Python_dependencies` inside the `Content` folder of your project. This directory will store the different versions of the `openai` package.
+
+2. **Install Specific Versions of OpenAI**:
+   We use pip's `--target` option to install each version of the `openai` package into its subdirectory. Run the following commands in your terminal:
+
+   For the latest version:
+   ```bash
+   python -m pip install "openai" --target C:\Path\To\Your\Project\Content\Python_dependencies\latest_openai --no-user
+   ```
+
+   For the version 0.28.1:
+   ```bash
+   python -m pip install "openai==0.28.1" --target C:\Path\To\Your\Project\Content\Python_dependencies\old_openai --no-user
+   ```
+
+   Replace `C:\Path\To\Your\Project` with the actual path to your project's directory.
+
 
 - Install Python3 and Git
 
