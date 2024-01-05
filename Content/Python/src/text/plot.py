@@ -1,7 +1,11 @@
 import os
 import sys
+from pathlib import Path
 import conversate
 import colorama
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
 
 from Content.Python.src.bot import bot
 from Content.Python.src.core import translator as translate

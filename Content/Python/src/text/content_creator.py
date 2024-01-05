@@ -1,6 +1,10 @@
 from transformers import pipeline
 import sys
 import os
+from pathlib import Path
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
 
 from Content.Python.src.core import process_system
 

@@ -2,6 +2,10 @@ import openai
 from dotenv import load_dotenv
 import os
 import sys
+from pathlib import Path
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
 
 from Content.Python.src.bot import bot
 

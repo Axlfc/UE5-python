@@ -1,6 +1,11 @@
+import sys
+from pathlib import Path
 import colorama
 import os
 from datetime import datetime
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
 
 from Content.Python.src.bot import bot
 from Content.Python.src.core import process_system

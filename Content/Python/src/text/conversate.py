@@ -2,15 +2,21 @@ import colorama
 import os
 from datetime import datetime
 import sys
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+content_path = Path('../../../../../UE5-python')
+sys.path.append(str(content_path))
 
 from Content.Python.src.bot import bot
 from Content.Python.src.core import process_system
 
-from dotenv import load_dotenv
-from pathlib import Path
 
 dotenv_path = Path('../bot/.env')
 load_dotenv(dotenv_path=dotenv_path)
+
+
 
 # openai_key = os.environ["OPENAI_API_KEY"]
 
