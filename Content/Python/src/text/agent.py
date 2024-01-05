@@ -56,10 +56,10 @@ def load_assistant_id_by_name(assistant_name, file_path='assistants_data.json'):
 
 
 def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", code=False, file_path='assistants_data.json'):
-    existing_assistant_id = load_assistant_id_by_name(assistant_name, file_path)
-    if existing_assistant_id:
-        print(f"Using existing assistant: {existing_assistant_id}")
-        return existing_assistant_id
+    assistant_data = load_assistant_data(assistant_name, file_path)
+    if assistant_data and 'assistant_id' in assistant_data:
+        # print(f"Using existing assistant: {assistant_data['assistant_id']}")
+        return assistant_data['assistant_id']
     else:
         tools = [{"type": "code_interpreter"}] if code else []
         assistant = client.beta.assistants.create(
@@ -69,6 +69,7 @@ def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", c
             model=model
         )
         print(f"Assistant created: {assistant.id}")
+        save_assistant_data(assistant.id, assistant_name, None, file_path)
         return assistant.id
 
 
@@ -76,7 +77,7 @@ def create_thread(assistant_name, assistant_id, file_path='assistants_data.json'
     assistant_data = load_assistant_data(assistant_name, file_path)
 
     if 'thread_id' in assistant_data and assistant_data['thread_id']:
-        print(f"Using existing thread: {assistant_data['thread_id']}")
+        # print(f"Using existing thread: {assistant_data['thread_id']}")
         return assistant_data['thread_id']
 
     # Create a new thread if no existing thread ID
@@ -103,7 +104,7 @@ def run_assistant(thread_id, assistant_id):
         assistant_id=assistant_id
     )
     run_id = run_response.id  # Capture the run ID correctly
-    print(f"Run initiated with ID: {run_id}")
+    # print(f"Run initiated with ID: {run_id}")
     return run_id
 
 
@@ -146,7 +147,7 @@ def extract_value_from_response(response):
     else:
         extracted_content = "Content not found."
 
-    return extracted_content
+    return extracted_content.split("\n")
 
 
 def check_assistant(name, instructions):
@@ -160,7 +161,9 @@ def main():
     print(f"{assistant_name} Assistant loaded.")
 
     thread_id = create_thread(assistant_name, assistant_id)
-    print(f"Thread created/loaded: {thread_id}")
+    # print(f"Thread created/loaded: {thread_id}")
+
+    processed_message_ids = []  # Lista para almacenar IDs de mensajes procesados
 
     while True:
         user_question = input("Enter your question (or type 'exit' to quit): ")
@@ -168,16 +171,20 @@ def main():
             break
 
         add_message_to_thread(thread_id, user_question)
-        print("User question added to thread.")
+        # print("User question added to thread.")
 
         run_id = run_assistant(thread_id, assistant_id)
         if run_id:  # Ensure run_id is not None or empty
             if wait_for_run_completion(thread_id, run_id):
                 responses = get_assistant_responses(thread_id)
                 for response in responses:
-                    if response.role == "assistant":
-                        content = extract_value_from_response(response.content)
-                        print(f"Assistant: {content}")
+                    if response.role == "assistant" and response.id not in processed_message_ids:
+                        content = extract_value_from_response(response.content)[0]
+                        if content != "Content not found.":
+                            processed_message_ids.append(response.id)
+                            # Mostrar solo la primera línea del contenido
+                            first_line_of_content = content
+                print(first_line_of_content)
             else:
                 print("Run did not complete successfully.")
         else:
