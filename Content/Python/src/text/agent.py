@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 import json
+import yaml
 
 content_path = Path('../../../../../UE5-python')
 sys.path.append(str(content_path))
@@ -170,20 +171,64 @@ def add_message(message, initialtime):
         f.write(time.strip() + ": " + message.strip() + "\n")
 
 
-def setup_assistant(assistant_name="Assistant", instructions=""):
-    return assistant_name, instructions
+def update_agents_yaml(yml_file, assistant_name, instructions):
+    # Read existing agents
+    with open(yml_file, 'r') as file:
+        agents_data = yaml.safe_load(file) or {'agents': []}
+
+    # Append new agent if it doesn't already exist
+    if not any(agent['name'] == assistant_name for agent in agents_data['agents']):
+        new_agent = {
+            'name': assistant_name,
+            'instructions': instructions
+        }
+        agents_data['agents'].append(new_agent)
+
+        # Write updated agents back to file with proper formatting
+        with open(yml_file, 'w') as file:
+            yaml.dump(agents_data, file, default_flow_style=False, sort_keys=False)
+
+
+def setup_assistant(yml_file, assistant_name="Assistant", default_instructions=""):
+    agents = load_gpt_agents(yml_file)
+    instructions = search_agent_by_name(assistant_name, agents)
+
+    if instructions:
+        return assistant_name, instructions
+    else:
+        # If no instructions are provided, use default instructions
+        instructions = default_instructions if default_instructions else "Default instructions for new agent."
+        # Add new agent to the YAML file
+        update_agents_yaml(yml_file, assistant_name, instructions)
+        return assistant_name, instructions
+
+
+def load_gpt_agents(yml_file):
+    with open(yml_file, "r") as file:
+        data = yaml.safe_load(file)
+        return data.get("agents", [])
+
+
+def search_agent_by_name(name, agents):
+    for agente in agents:
+        if agente["name"] == name:
+            return agente["instructions"]
+    return ""
 
 
 def main():
+    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+
+    # Load agents.yml
+    agents_path = Path('agents.yml')
+    nombre_asistente = "Tech Support"
+
+    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente)
+
     repo_dir = os.path.join(os.path.abspath(__file__)[:-9].split("\n")[0], "conversations")
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
 
-    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-    assistant_name, instructions = setup_assistant(
-        "Math Tutor",
-        "You are a personal math tutor. Write and run code to answer math questions."
-    )
     assistant_id = create_assistant(assistant_name, instructions, code=True)
     print(f"{assistant_name} Assistant loaded.")
 
