@@ -149,14 +149,14 @@ def extract_value_from_response(response):
     else:
         extracted_content = "Content not found."
 
-    return extracted_content.split("\n")
+    return extracted_content.split("\n")[0]
 
 
 def add_message(message, initialtime):
     now = datetime.now()
     time = now.strftime("%H-%M-%S")
     date = now.strftime("%Y-%m-%d")
-    repo_dir = os.path.join(os.path.abspath(__file__)[:-14].split("\n")[0], "conversations")
+    repo_dir = os.path.join(os.path.abspath(__file__)[:-9].split("\n")[0], "conversations")
     if platform.system() == "Windows":
         x = repo_dir + "\\" + date
         filepath = x + "\\" + initialtime + ".txt"
@@ -175,6 +175,10 @@ def setup_assistant(assistant_name="Assistant", instructions=""):
 
 
 def main():
+    repo_dir = os.path.join(os.path.abspath(__file__)[:-9].split("\n")[0], "conversations")
+    if not os.path.exists(repo_dir):
+        os.mkdir(repo_dir)
+
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     assistant_name, instructions = setup_assistant(
         "Math Tutor",
@@ -194,20 +198,22 @@ def main():
             break
 
         add_message_to_thread(thread_id, user_question)
-        # print("User question added to thread.")
+        add_message("User: " + user_question, initial_time)  # Registrar pregunta del usuario
 
         run_id = run_assistant(thread_id, assistant_id)
-        if run_id:  # Ensure run_id is not None or empty
+        if run_id:
             if wait_for_run_completion(thread_id, run_id):
                 responses = get_assistant_responses(thread_id)
                 for response in responses:
                     if response.role == "assistant" and response.id not in processed_message_ids:
-                        content = extract_value_from_response(response.content)[0]
+                        content = extract_value_from_response(response.content)
                         if content != "Content not found.":
                             processed_message_ids.append(response.id)
-                            # Mostrar solo la primera línea del contenido
-                            first_line_of_content = content
-                print(first_line_of_content)
+                            first_line_of_content = content.split("\n")[0]
+                            add_message("Assistant: " + first_line_of_content,
+                                        initial_time)  # Registrar respuesta del asistente
+                            print(first_line_of_content)
+                            break  # Salir del ciclo una vez que se ha mostrado la última respuesta
             else:
                 print("Run did not complete successfully.")
         else:
