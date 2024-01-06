@@ -221,13 +221,15 @@ def main():
 
     # Load agents.yml
     agents_path = Path('agents.yml')
-    nombre_asistente = "Tech Support"
-
-    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente)
+    agents = load_gpt_agents(agents_path)
 
     repo_dir = os.path.join(os.path.abspath(__file__)[:-9].split("\n")[0], "conversations")
     if not os.path.exists(repo_dir):
         os.mkdir(repo_dir)
+
+    nombre_asistente = "Tech Support"
+
+    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente)
 
     assistant_id = create_assistant(assistant_name, instructions, code=True)
     print(f"{assistant_name} Assistant loaded.")
