@@ -1,18 +1,30 @@
-import platform
+import os
 import sys
 import time
+import platform
 from datetime import datetime
 from pathlib import Path
 import json
 import yaml
+import logging
+from dotenv import load_dotenv
 
 content_path = Path('../../../../../UE5-python')
 sys.path.append(str(content_path))
 
-from Content.Python_dependencies.latest_openai import openai
+# Constants
+DEFAULT_INSTRUCTIONS = "You are a default Assistant agent."
+ASSISTANTS_DATA_FILENAME = 'assistants_data.json'
+DEFAULT_TIMEOUT = 120
+CONTENT_NOT_FOUND = "Content not found."
+AGENTS_FILENAME = 'agents.yml'
+LOG_FORMAT = "%(levelname)s: %(asctime)s - %(message)s"
 
-from dotenv import load_dotenv
-import os
+# Configure logging
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+logger = logging.getLogger(__name__)
+
+from Content.Python_dependencies.latest_openai import openai
 
 # Load your OpenAI API key from .env file
 dotenv_path = Path('../bot/.env')
@@ -24,23 +36,19 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=api_key)
 
 
-def save_assistant_data(assistant_id, assistant_name, thread_id, file_path='assistants_data.json'):
-    # Load existing data
+def save_assistant_data(assistant_id, assistant_name, thread_id, file_path=ASSISTANTS_DATA_FILENAME):
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
     except FileNotFoundError:
         data = {}
 
-    # Update data with new assistant and thread
     data[assistant_name] = {'assistant_id': assistant_id, 'thread_id': thread_id}
-
-    # Save updated data
     with open(file_path, 'w') as file:
         json.dump(data, file)
 
 
-def load_assistant_data(assistant_name, file_path='assistants_data.json'):
+def load_assistant_data(assistant_name, file_path=ASSISTANTS_DATA_FILENAME):
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
@@ -49,7 +57,7 @@ def load_assistant_data(assistant_name, file_path='assistants_data.json'):
         return {}
 
 
-def load_assistant_id_by_name(assistant_name, file_path='assistants_data.json'):
+def load_assistant_id_by_name(assistant_name, file_path=ASSISTANTS_DATA_FILENAME):
     try:
         with open(file_path, 'r') as file:
             data = json.load(file)
@@ -58,7 +66,7 @@ def load_assistant_id_by_name(assistant_name, file_path='assistants_data.json'):
         return None
 
 
-def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", code=False, file_path='assistants_data.json'):
+def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", code=False, file_path=ASSISTANTS_DATA_FILENAME):
     assistant_data = load_assistant_data(assistant_name, file_path)
     if assistant_data and 'assistant_id' in assistant_data:
         # print(f"Using existing assistant: {assistant_data['assistant_id']}")
@@ -76,7 +84,7 @@ def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", c
         return assistant.id
 
 
-def create_thread(assistant_name, assistant_id, file_path='assistants_data.json'):
+def create_thread(assistant_name, assistant_id, file_path=ASSISTANTS_DATA_FILENAME):
     assistant_data = load_assistant_data(assistant_name, file_path)
 
     if 'thread_id' in assistant_data and assistant_data['thread_id']:
@@ -124,7 +132,7 @@ def get_assistant_responses(thread_id):
     return messages.data  # Return the list of messages directly
 
 
-def wait_for_run_completion(thread_id, run_id, timeout=60):
+def wait_for_run_completion(thread_id, run_id, timeout=DEFAULT_TIMEOUT):
     start_time = time.time()
     while time.time() - start_time < timeout:
         run_status = retrieve_run_status(thread_id, run_id)
@@ -148,7 +156,7 @@ def extract_value_from_response(response):
     if start_index != -1 and end_index != -1:
         extracted_content = response_str[start_index:end_index]
     else:
-        extracted_content = "Content not found."
+        extracted_content = CONTENT_NOT_FOUND
 
     return extracted_content.split("\n")[0]
 
@@ -197,7 +205,7 @@ def setup_assistant(yml_file, assistant_name="Assistant", default_instructions="
         return assistant_name, instructions
     else:
         # If no instructions are provided, use default instructions
-        instructions = default_instructions if default_instructions else "Default instructions for new agent."
+        instructions = default_instructions if default_instructions else DEFAULT_INSTRUCTIONS
         # Add new agent to the YAML file
         update_agents_yaml(yml_file, assistant_name, instructions)
         return assistant_name, instructions
@@ -216,29 +224,21 @@ def search_agent_by_name(name, agents):
     return ""
 
 
-def main():
-    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-
-    # Load agents.yml
-    agents_path = Path('agents.yml')
+def setup_all_agents(agents_path):
     agents = load_gpt_agents(agents_path)
+    for agent in agents:
+        assistant_name, instructions = setup_assistant(agents_path, agent['name'])
+        try:
+            assistant_id = create_assistant(assistant_name, instructions, code=True)
+            logger.info(f"{assistant_name} Assistant loaded.")
+            thread_id = create_thread(assistant_name, assistant_id)
+            # You can add other operations here if needed
+        except Exception as e:
+            logger.error(f"Error while setting up {assistant_name}: {e}")
 
-    repo_dir = os.path.join(os.path.abspath(__file__)[:-9].split("\n")[0], "conversations")
-    if not os.path.exists(repo_dir):
-        os.mkdir(repo_dir)
 
-    nombre_asistente = "Tech Support"
-
-    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente)
-
-    assistant_id = create_assistant(assistant_name, instructions, code=True)
-    print(f"{assistant_name} Assistant loaded.")
-
-    thread_id = create_thread(assistant_name, assistant_id)
-    # print(f"Thread created/loaded: {thread_id}")
-
-    processed_message_ids = []  # Lista para almacenar IDs de mensajes procesados
-
+def ask_user_loop(thread_id, assistant_id, processed_message_ids):
+    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
         user_question = input("Enter your question (or type 'exit' to quit): ")
         if user_question.lower() == 'exit':
@@ -254,7 +254,7 @@ def main():
                 for response in responses:
                     if response.role == "assistant" and response.id not in processed_message_ids:
                         content = extract_value_from_response(response.content)
-                        if content != "Content not found.":
+                        if content != CONTENT_NOT_FOUND:
                             processed_message_ids.append(response.id)
                             first_line_of_content = content.split("\n")[0]
                             add_message("Assistant: " + first_line_of_content,
@@ -267,6 +267,36 @@ def main():
             print("Run initiation failed.")
 
         print("----\n")
+
+
+def check_conversations():
+    repo_dir = Path(__file__).resolve().parent / "conversations"
+    repo_dir.mkdir(parents=True, exist_ok=True)
+    if not os.path.exists(repo_dir):
+        os.mkdir(repo_dir)
+
+
+def main():
+    check_conversations()
+
+    agents_path = Path(AGENTS_FILENAME)
+    agents = load_gpt_agents(agents_path)
+
+    nombre_asistente = "Boss"
+    instrucciones_asistente = "As the 'Boss' agent, your role is to manage and oversee various projects, " \
+                              "coordinating between different GPT agents ('emissor' and 'receptor') " \
+                              "to achieve specific goals. You are responsible for project allocation, " \
+                              "monitoring progress, and ensuring efficient communication."
+
+    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente, instrucciones_asistente)
+
+    try:
+        assistant_id = create_assistant(assistant_name, instructions, code=True)
+        thread_id = create_thread(assistant_name, assistant_id)
+    except Exception as e:
+        logger.error(f"Error while setting up {assistant_name}: {e}")
+
+    ask_user_loop(thread_id, assistant_id, [])
 
 
 if __name__ == "__main__":
