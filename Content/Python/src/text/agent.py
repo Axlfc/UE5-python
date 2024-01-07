@@ -8,6 +8,7 @@ import json
 import yaml
 import logging
 from dotenv import load_dotenv
+from File import File
 
 content_path = Path('../../../../../UE5-python')
 sys.path.append(str(content_path))
@@ -233,6 +234,25 @@ def setup_all_agents(agents_path):
             logger.error(f"Error while setting up {assistant_name}: {e}")
 
 
+def ask_boss_loop(boss_agent):
+    processed_message_ids = []
+    while True:
+        user_input = input("Enter your question (or type 'exit' to quit): ")
+        if user_input.lower() == 'exit':
+            break
+
+        boss_agent.send_message(user_input)
+        run_id = boss_agent.run_assistant()
+        if boss_agent.wait_for_run_completion(run_id):
+            responses = boss_agent.get_responses()
+            for response in responses:
+                # Process and display response
+                print("OKAY, HELLO!\t", response)
+                pass
+        else:
+            print("Run did not complete successfully.")
+
+
 def ask_user_loop(thread_id, assistant_id, processed_message_ids):
     initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
@@ -265,6 +285,29 @@ def ask_user_loop(thread_id, assistant_id, processed_message_ids):
         print("----\n")
 
 
+def enable_knowledge_retrieval(assistant_id, file_ids):
+    try:
+        client.beta.assistants.update(
+            assistant_id=assistant_id,
+            tools=[{"type": "retrieval"}],
+            file_ids=file_ids
+        )
+    except Exception as e:
+        logger.error(f"Error enabling knowledge retrieval: {e}")
+
+
+def attach_file_to_thread(thread_id, file_id, message_content):
+    try:
+        client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=message_content,
+            file_ids=[file_id]
+        )
+    except Exception as e:
+        logger.error(f"Error attaching file to thread: {e}")
+
+
 def check_conversations():
     repo_dir = Path(__file__).resolve().parent / "conversations"
     repo_dir.mkdir(parents=True, exist_ok=True)
@@ -272,16 +315,10 @@ def check_conversations():
         os.mkdir(repo_dir)
 
 
-def main():
+def ask(nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
     check_conversations()
     agents_path = Path(AGENTS_FILENAME)
     # agents = load_gpt_agents(agents_path)
-
-    nombre_asistente = "Boss"
-    instrucciones_asistente = "As the 'Boss' agent, your role is to manage and oversee various projects, " \
-                              "coordinating between different GPT agents ('emissor' and 'receptor') " \
-                              "to achieve specific goals. You are responsible for project allocation, " \
-                              "monitoring progress, and ensuring efficient communication."
 
     assistant_name, instructions = setup_assistant(agents_path, nombre_asistente, instrucciones_asistente)
     try:
@@ -290,6 +327,61 @@ def main():
         ask_user_loop(thread_id, assistant_id, [])
     except Exception as e:
         logger.error(f"Error while setting up {assistant_name}: {e}")
+
+
+class Agent:
+    def __init__(self, name, instructions, model="gpt-4-1106-preview", code=False):
+        self.name = name
+        self.instructions = instructions
+        self.model = model
+        self.code = code
+        self.assistant_id = create_assistant(self.name, self.instructions)
+        self.thread_id = create_thread(self.name, self.assistant_id)
+
+    def get_responses(self):
+        messages = client.beta.threads.messages.list(thread_id=self.thread_id)
+        return messages.data
+
+    def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            run_status = client.beta.threads.runs.retrieve(
+                thread_id=self.thread_id,
+                run_id=run_id
+            )
+            if run_status.status == "completed":
+                return True
+            elif run_status.status in ["failed", "cancelled", "expired"]:
+                return False
+            time.sleep(5)
+        return False
+
+    def run_assistant(self):
+        run_response = client.beta.threads.runs.create(
+            thread_id=self.thread_id,
+            assistant_id=self.assistant_id
+        )
+        return run_response.id
+
+    def send_message(self, content, role="user"):
+        return client.beta.threads.messages.create(
+            thread_id=self.thread_id,
+            role=role,
+            content=content
+        )
+
+
+def main():
+    nombre_asistente = "Boss"
+    instrucciones_asistente = "As the 'Boss' agent, your role is to manage and oversee various projects, " \
+                              "coordinating between different GPT agents ('emissor' and 'receptor') " \
+                              "to achieve specific goals. You are responsible for project allocation, " \
+                              "monitoring progress, and ensuring efficient communication."
+
+    #  ask(nombre_asistente, instrucciones_asistente)
+
+    boss_agent = Agent(nombre_asistente, instrucciones_asistente, code=True)
+    ask_boss_loop(boss_agent)
 
 
 if __name__ == "__main__":
