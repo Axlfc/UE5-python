@@ -33,25 +33,122 @@ load_dotenv(dotenv_path=dotenv_path)
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def save_assistant_data(assistant_id, assistant_name, thread_id, file_path=ASSISTANTS_DATA_FILENAME):
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-    except FileNotFoundError:
-        data = {}
+class Agent:
+    def __init__(self, name, instructions, model="gpt-4-1106-preview", code=False):
+        self.name = name
+        self.instructions = instructions
+        self.model = model
+        self.code = code
+        self.assistant_id = self.create_assistant(code=code)
+        self.thread_id = self.create_thread(self.name, self.assistant_id)
 
-    data[assistant_name] = {'assistant_id': assistant_id, 'thread_id': thread_id}
-    with open(file_path, 'w') as file:
-        json.dump(data, file)
+    def get_all_responses(self):
+        messages = client.beta.threads.messages.list(thread_id=self.thread_id)
+        return messages.data
 
+    def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            run_status = client.beta.threads.runs.retrieve(
+                thread_id=self.thread_id,
+                run_id=run_id
+            )
+            if run_status.status == "completed":
+                return True
+            elif run_status.status in ["failed", "cancelled", "expired"]:
+                return False
+            time.sleep(5)
+        return False
 
-def load_assistant_data(assistant_name, file_path=ASSISTANTS_DATA_FILENAME):
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-            return data.get(assistant_name, {})
-    except FileNotFoundError:
-        return {}
+    def run_assistant(self):
+        run_response = client.beta.threads.runs.create(
+            thread_id=self.thread_id,
+            assistant_id=self.assistant_id
+        )
+        return run_response.id
+
+    def send_message(self, content, role="user"):
+        return client.beta.threads.messages.create(
+            thread_id=self.thread_id,
+            role=role,
+            content=content
+        )
+
+    def load_assistant_data(self):
+        try:
+            with open(ASSISTANTS_DATA_FILENAME, 'r') as file:
+                data = json.load(file)
+                return data.get(self.name, {})
+        except FileNotFoundError:
+            return {}
+
+    def save_assistant_data(self):
+        try:
+            with open(ASSISTANTS_DATA_FILENAME, 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = {}
+
+        data[self.name] = {'assistant_id': self.assistant_id, 'thread_id': self.thread_id}
+        with open(ASSISTANTS_DATA_FILENAME, 'w') as file:
+            json.dump(data, file)
+
+    def create_assistant(self, code=False):
+        assistant_data = self.load_assistant_data()
+        if assistant_data and 'assistant_id' in assistant_data:
+            # print(f"Using existing assistant: {assistant_data['assistant_id']}")
+            return assistant_data['assistant_id']
+        else:
+            tools = [{"type": "code_interpreter"}] if code else []
+            assistant = client.beta.assistants.create(
+                name=self.name,
+                instructions=self.instructions,
+                tools=tools,
+                model="gpt-4-1106-preview"
+            )
+            # print(f"Assistant created: {assistant.id}")
+            self.save_assistant_data(self.assistant.id, self.name, None, ASSISTANTS_DATA_FILENAME)
+            return assistant.id
+
+    def setup_all_agents(self, agents_path):
+        agents = load_gpt_agents(agents_path)
+        for agent in agents:
+            assistant_name, instructions = setup_assistant(agents_path, agent['name'])
+            try:
+                assistant_id = self.create_assistant(code=True)
+                logger.info(f"{assistant_name} Assistant loaded.")
+                thread_id = self.create_thread(assistant_name, assistant_id)
+                # You can add other operations here if needed
+            except Exception as e:
+                logger.error(f"Error while setting up {assistant_name}: {e}")
+
+    def ask(self, nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
+        check_conversations()
+        agents_path = Path(AGENTS_FILENAME)
+        # agents = load_gpt_agents(agents_path)
+
+        assistant_name, instructions = setup_assistant(agents_path, nombre_asistente, instrucciones_asistente)
+        try:
+            assistant_id = self.create_assistant(code=True)
+            thread_id = self.create_thread(assistant_name, assistant_id)
+            ask_user_loop(thread_id, assistant_id, [])
+        except Exception as e:
+            logger.error(f"Error while setting up {assistant_name}: {e}")
+
+    def create_thread(self, assistant_name, assistant_id, file_path=ASSISTANTS_DATA_FILENAME):
+        assistant_data = self.load_assistant_data()
+
+        if 'thread_id' in assistant_data and assistant_data['thread_id']:
+            # print(f"Using existing thread: {assistant_data['thread_id']}")
+            return assistant_data['thread_id']
+
+        # Create a new thread if no existing thread ID
+        thread = client.beta.threads.create()
+        # print(f"Thread created: {thread.id}")
+
+        # Update the assistant data with the new thread ID
+        self.save_assistant_data(assistant_id, assistant_name, thread.id, file_path)
+        return thread.id
 
 
 def load_assistant_id_by_name(assistant_name, file_path=ASSISTANTS_DATA_FILENAME):
@@ -61,40 +158,6 @@ def load_assistant_id_by_name(assistant_name, file_path=ASSISTANTS_DATA_FILENAME
             return data.get(assistant_name)
     except FileNotFoundError:
         return None
-
-
-def create_assistant(assistant_name, instructions, model="gpt-4-1106-preview", code=False, file_path=ASSISTANTS_DATA_FILENAME):
-    assistant_data = load_assistant_data(assistant_name, file_path)
-    if assistant_data and 'assistant_id' in assistant_data:
-        # print(f"Using existing assistant: {assistant_data['assistant_id']}")
-        return assistant_data['assistant_id']
-    else:
-        tools = [{"type": "code_interpreter"}] if code else []
-        assistant = client.beta.assistants.create(
-            name=assistant_name,
-            instructions=instructions,
-            tools=tools,
-            model=model
-        )
-        # print(f"Assistant created: {assistant.id}")
-        save_assistant_data(assistant.id, assistant_name, None, file_path)
-        return assistant.id
-
-
-def create_thread(assistant_name, assistant_id, file_path=ASSISTANTS_DATA_FILENAME):
-    assistant_data = load_assistant_data(assistant_name, file_path)
-
-    if 'thread_id' in assistant_data and assistant_data['thread_id']:
-        # print(f"Using existing thread: {assistant_data['thread_id']}")
-        return assistant_data['thread_id']
-
-    # Create a new thread if no existing thread ID
-    thread = client.beta.threads.create()
-    # print(f"Thread created: {thread.id}")
-
-    # Update the assistant data with the new thread ID
-    save_assistant_data(assistant_id, assistant_name, thread.id, file_path)
-    return thread.id
 
 
 def add_message_to_thread(thread_id, content, role="user"):
@@ -221,21 +284,8 @@ def search_agent_by_name(name, agents):
     return ""
 
 
-def setup_all_agents(agents_path):
-    agents = load_gpt_agents(agents_path)
-    for agent in agents:
-        assistant_name, instructions = setup_assistant(agents_path, agent['name'])
-        try:
-            assistant_id = create_assistant(assistant_name, instructions, code=True)
-            logger.info(f"{assistant_name} Assistant loaded.")
-            thread_id = create_thread(assistant_name, assistant_id)
-            # You can add other operations here if needed
-        except Exception as e:
-            logger.error(f"Error while setting up {assistant_name}: {e}")
-
-
-def ask_boss_loop(boss_agent):
-    processed_message_ids = []
+def ask_boss_loop(boss_agent, processed_message_ids):
+    initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
     while True:
         user_input = input("Enter your question (or type 'exit' to quit): ")
         if user_input.lower() == 'exit':
@@ -244,11 +294,17 @@ def ask_boss_loop(boss_agent):
         boss_agent.send_message(user_input)
         run_id = boss_agent.run_assistant()
         if boss_agent.wait_for_run_completion(run_id):
-            responses = boss_agent.get_responses()
+            responses = boss_agent.get_all_responses()
             for response in responses:
                 # Process and display response
-                print("OKAY, HELLO!\t", response)
-                pass
+                content = extract_value_from_response(response.content)
+                if content != CONTENT_NOT_FOUND:
+                    processed_message_ids.append(response.id)
+                    first_line_of_content = content.split("\n")[0]
+                    add_message("Boss: " + first_line_of_content,
+                                initial_time)  # Registrar respuesta del asistente
+                    print(first_line_of_content)
+                    break  # Salir del ciclo una vez que se ha mostrado la última respuesta
         else:
             print("Run did not complete successfully.")
 
@@ -315,62 +371,6 @@ def check_conversations():
         os.mkdir(repo_dir)
 
 
-def ask(nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
-    check_conversations()
-    agents_path = Path(AGENTS_FILENAME)
-    # agents = load_gpt_agents(agents_path)
-
-    assistant_name, instructions = setup_assistant(agents_path, nombre_asistente, instrucciones_asistente)
-    try:
-        assistant_id = create_assistant(assistant_name, instructions, code=True)
-        thread_id = create_thread(assistant_name, assistant_id)
-        ask_user_loop(thread_id, assistant_id, [])
-    except Exception as e:
-        logger.error(f"Error while setting up {assistant_name}: {e}")
-
-
-class Agent:
-    def __init__(self, name, instructions, model="gpt-4-1106-preview", code=False):
-        self.name = name
-        self.instructions = instructions
-        self.model = model
-        self.code = code
-        self.assistant_id = create_assistant(self.name, self.instructions)
-        self.thread_id = create_thread(self.name, self.assistant_id)
-
-    def get_responses(self):
-        messages = client.beta.threads.messages.list(thread_id=self.thread_id)
-        return messages.data
-
-    def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
-        start_time = time.time()
-        while time.time() - start_time < timeout:
-            run_status = client.beta.threads.runs.retrieve(
-                thread_id=self.thread_id,
-                run_id=run_id
-            )
-            if run_status.status == "completed":
-                return True
-            elif run_status.status in ["failed", "cancelled", "expired"]:
-                return False
-            time.sleep(5)
-        return False
-
-    def run_assistant(self):
-        run_response = client.beta.threads.runs.create(
-            thread_id=self.thread_id,
-            assistant_id=self.assistant_id
-        )
-        return run_response.id
-
-    def send_message(self, content, role="user"):
-        return client.beta.threads.messages.create(
-            thread_id=self.thread_id,
-            role=role,
-            content=content
-        )
-
-
 def main():
     nombre_asistente = "Boss"
     instrucciones_asistente = "As the 'Boss' agent, your role is to manage and oversee various projects, " \
@@ -381,7 +381,9 @@ def main():
     #  ask(nombre_asistente, instrucciones_asistente)
 
     boss_agent = Agent(nombre_asistente, instrucciones_asistente, code=True)
-    ask_boss_loop(boss_agent)
+
+    processed_message_ids = []
+    ask_boss_loop(boss_agent, processed_message_ids)
 
 
 if __name__ == "__main__":
