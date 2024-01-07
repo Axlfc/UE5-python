@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 content_path = Path('../../../../../UE5-python')
 sys.path.append(str(content_path))
 
+from Content.Python_dependencies.latest_openai import openai
+
 # Constants
 DEFAULT_INSTRUCTIONS = "You are a default Assistant agent."
 ASSISTANTS_DATA_FILENAME = 'assistants_data.json'
@@ -24,16 +26,10 @@ LOG_FORMAT = "%(levelname)s: %(asctime)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
-from Content.Python_dependencies.latest_openai import openai
-
 # Load your OpenAI API key from .env file
 dotenv_path = Path('../bot/.env')
 load_dotenv(dotenv_path=dotenv_path)
-
-api_key = os.getenv("OPENAI_API_KEY")
-
-# Initialize the OpenAI client
-client = openai.OpenAI(api_key=api_key)
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def save_assistant_data(assistant_id, assistant_name, thread_id, file_path=ASSISTANTS_DATA_FILENAME):
@@ -278,9 +274,8 @@ def check_conversations():
 
 def main():
     check_conversations()
-
     agents_path = Path(AGENTS_FILENAME)
-    agents = load_gpt_agents(agents_path)
+    # agents = load_gpt_agents(agents_path)
 
     nombre_asistente = "Boss"
     instrucciones_asistente = "As the 'Boss' agent, your role is to manage and oversee various projects, " \
@@ -289,14 +284,12 @@ def main():
                               "monitoring progress, and ensuring efficient communication."
 
     assistant_name, instructions = setup_assistant(agents_path, nombre_asistente, instrucciones_asistente)
-
     try:
         assistant_id = create_assistant(assistant_name, instructions, code=True)
         thread_id = create_thread(assistant_name, assistant_id)
+        ask_user_loop(thread_id, assistant_id, [])
     except Exception as e:
         logger.error(f"Error while setting up {assistant_name}: {e}")
-
-    ask_user_loop(thread_id, assistant_id, [])
 
 
 if __name__ == "__main__":
