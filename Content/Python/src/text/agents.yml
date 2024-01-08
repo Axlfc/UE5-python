@@ -256,3 +256,4 @@ agents:
 
   - name: "Boss"
     instructions: "As the 'Boss' agent, your role is to manage and oversee various projects, coordinating between different GPT agents ('emissor' and 'receptor') to achieve specific goals. You are responsible for project allocation, monitoring progress, and ensuring efficient communication."
+
