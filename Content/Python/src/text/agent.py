@@ -16,7 +16,10 @@ sys.path.append(str(content_path))
 
 from Content.Python_dependencies.latest_openai import openai
 
+
 # Constants
+MODEL = "gpt-4-1106-preview"
+
 ASSISTANTS_DATA_FILENAME = 'assistants_data.json'
 DEFAULT_TIMEOUT = 120
 CONTENT_NOT_FOUND = "Content not found."
@@ -39,7 +42,7 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 class AbstractAgent(ABC):
-    def __init__(self, name, instructions, model="gpt-4-1106-preview", code=False):
+    def __init__(self, name, instructions, model=MODEL, code=False):
         self.name = name
         self.instructions = instructions
         self.model = model
@@ -63,6 +66,7 @@ class AbstractAgent(ABC):
                 run_id=run_id
             )
             if run_status.status == "completed":
+                print("Run completed")
                 return True
             elif run_status.status in ["failed", "cancelled", "expired"]:
                 return False
@@ -79,6 +83,7 @@ class AbstractAgent(ABC):
 
     @abstractmethod
     def send_message(self, content, role="user", recipient="assistant"):
+        print("SENDING MSG TO ", recipient)
         message = client.beta.threads.messages.create(
             thread_id=self.thread_id,
             role=role,
@@ -217,32 +222,16 @@ class AbstractAgent(ABC):
 
 
 class BossAgent(AbstractAgent):
-    def __init__(self, name, instructions, model="gpt-4-1106-preview", code=False):
+    def __init__(self, name, instructions, model=MODEL, code=False):
         super().__init__(name, instructions, model, code)
         # Project stages and respective agent mappings
-        self.project_stages = {
-            "Idea Generation": ["Literary Creativity Coach", "Art Critic", "Tech Enthusiast", "Startup Strategist"],
-            "Market Analysis": ["Financial Advisor", "Small Business Consultant", "Pop Culture Commentator",
-                                "Tech Enthusiast"],
-            "Feasibility Study": ["Financial Advisor", "Startup Strategist", "Tech Support",
-                                  "Artificial Intelligence Educator"],
-            "Planning": ["Startup Strategist", "Time Management Coach", "Project Management Specialist"],
-            "Design and Development": ["Art Critic", "Literary Creativity Coach", "Tech Enthusiast",
-                                       "Artificial Intelligence Educator"],
-            "Testing and Quality Assurance": ["Tech Support", "Science Explainer"],
-            "Implementation or Launch": ["Time Management Coach", "Marketing Expert", "Social Media Strategist"],
-            "Monitoring and Evaluation": ["Financial Advisor", "Small Business Consultant", "Customer Service Expert",
-                                          "Market Analyst"],
-            "Feedback and Iteration": ["Art Critic", "Literary Creativity Coach", "User Experience Expert",
-                                       "Tech Enthusiast"],
-            "Completion and Closure": ["Project Management Specialist", "Time Management Coach",
-                                       "Literary Creativity Coach", "Historical Educator"]
-        }
+        self.project_stages = {}
         # Maintain the status of the current project
         self.current_project = None
         self.current_stage = None
         self.current_task = None
         self.stage_progress = {}
+        self.agent_registry = {}
 
     def get_all_responses(self):
         return super().get_all_responses()
@@ -253,8 +242,8 @@ class BossAgent(AbstractAgent):
     def run_assistant(self):
         return super().run_assistant()
 
-    def send_message(self, content, role="user"):
-        return super().send_message(content, role)
+    def send_message(self, content, role="user", recipient="assistant"):
+        return super().send_message(content, role=role, recipient=recipient)
 
     def load_assistant_data(self):
         return super().load_assistant_data()
@@ -289,7 +278,6 @@ class BossAgent(AbstractAgent):
             agent_name = ""
             agent_instructions = ""
 
-            # Parse the response to extract agent name and instructions
             try:
                 if "Agent Name:" in boss_response and "Instructions:" in boss_response:
                     agent_name_start = boss_response.find("Agent Name;") + len("Agent Name;")
@@ -315,7 +303,8 @@ class BossAgent(AbstractAgent):
                 return extract_value_from_response(response.content)
         return None  # or some default value or error handling
 
-    def retrieve_agent_name_and_instructions_of_task(self, task_description):
+    def retrieve_single_agent_name_and_instructions_of_task(self, task):
+        task_description = "Please recommend only an agent for " + task +". Write back only the name and context instructions of the agent."
         new_agent_name, new_agent_instructions = self.parse_agent_info(task_description)
 
         if new_agent_name and new_agent_instructions:
@@ -348,11 +337,42 @@ class BossAgent(AbstractAgent):
             print("Run did not complete successfully.")
             return None
 
-    def analyze_task_and_recommend(self, task_description):
-        # Implement your logic here to decide which agent suits the task
-        # For now, returning a hardcoded agent name as an example
-        processed_agent_name_from_boss_recommendation = self.recommend_agent_for_task(task_description)
-        return processed_agent_name_from_boss_recommendation
+    def recommend_agents_for_task(self, task_description):
+        # Send a message to the Boss agent
+        self.send_message(task_description, role="user")
+        run_id = self.run_assistant()
+
+        recommended_agents = []
+        if self.wait_for_run_completion(run_id):
+            responses = self.get_all_responses()
+            for response in responses:
+                if response.id not in self.processed_message_ids:
+                    # Assuming response content is a list of agent recommendations
+                    response_texts = [resp.text.value for resp in response.content if
+                                      hasattr(resp, 'text') and hasattr(resp.text, 'value')]
+                    for text in response_texts:
+                        if "Agent Name:" in text and "Instructions:" in text:
+                            agent_name_start = text.find("Agent Name:") + len("Agent Name:")
+                            agent_instructions_start = text.find("Instructions:")
+                            agent_name = text[agent_name_start:agent_instructions_start].strip().replace(":", "")
+                            agent_instructions = text[agent_instructions_start + len("Instructions:"):].strip()
+                            recommended_agents.append((agent_name, agent_instructions))
+
+                    self.processed_message_ids.append(response.id)
+        return recommended_agents
+
+    def manage_multiple_agents_task(self, task):
+        agents = {}
+        task_description = "Please recommend two or more agents for " + task + ". Write back only the name and context instructions of each agent."
+        # Retrieve a list of agents for a given task
+        agents_info = self.recommend_agents_for_task(task_description)
+        for agent_name, instructions in agents_info:
+            # Store agent information in the dictionary
+            agents[agent_name] = instructions
+            # Instantiate the agent
+            # agent = AbstractAgent(agent_name, instructions, code=True)  # Replace with actual instantiation logic
+            # Send instructions to the agent and handle their responses
+        return agents
 
     def ask_boss_loop(self, boss_agent, processed_message_ids):
         initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
@@ -386,6 +406,148 @@ class BossAgent(AbstractAgent):
             selected_agent = agent_candidates[0]  # Placeholder for actual selection logic
             return selected_agent
         return None
+
+    def instantiate_agents(self, agents_info):
+        for agent_name, instructions in agents_info.items():
+            if agent_name not in self.agent_registry:
+                # Dynamically create an agent
+                new_agent = AbstractAgent(agent_name, instructions, code=True)
+                self.agent_registry[agent_name] = new_agent
+                # Log agent creation
+                logger.info(f"Instantiated agent {agent_name}")
+
+    def instantiate_agents_for_task(self, task):
+        # Get recommendations for the task
+        task_description = f"Please recommend agents for {task}. " \
+                           f"Write back only the name and instructions of each agent. " \
+                           f"If only one agent is necessary for the task, only recommend a single agent and its instructions"
+        agents_info = self.recommend_agents_for_task(task_description)
+
+        instantiated_agents = {}
+
+        # Iterate through each recommended agent
+        for agent_name, instructions in agents_info:
+            if agent_name not in self.agent_registry:
+                # Instantiate and store the agent if it doesn't exist
+                new_agent = AbstractAgent(agent_name, instructions, code=True)
+                self.agent_registry[agent_name] = new_agent
+                logger.info(f"Instantiated agent: {agent_name}")
+            else:
+                logger.info(f"Agent {agent_name} already exists.")
+
+            # Add to the list of instantiated agents
+            instantiated_agents[agent_name] = self.agent_registry[agent_name]
+
+        return instantiated_agents
+
+    def assign_task(self, task_description, stage):
+        # Instantiate agents for the given task
+        agents = self.instantiate_agents_for_task(stage)
+
+        if len(agents) == 1:
+            # Assign task to the single agent
+            agent_name = next(iter(agents))
+            agents[agent_name].send_message(f"Task Assignment: {task_description}", role="boss")
+            logger.info(f"Assigned task '{task_description}' to {agent_name}")
+        else:
+            # Assign tasks to multiple agents and specify inter-agent communication if needed
+            for agent_name, agent in agents.items():
+                # Assign task
+                agent.send_message(f"Task Assignment for {stage}: {task_description}", role="boss")
+                # Inform about necessary communication with other agents
+                other_agents = [name for name in agents if name != agent_name]
+                agent.send_message(f"Coordinate with: {', '.join(other_agents)}", role="boss")
+                logger.info(f"Assigned task '{task_description}' to {agent_name} with coordination instructions")
+
+    def generate_project_stages(self, project_description):
+        """
+        Asks the Boss agent to generate project stages and suitable agents for each stage.
+        :param project_description: A description or name of the project.
+        """
+        print("GENERATE PROJECT TRIGGERED")
+        # Ask the Boss agent for project stages and agents
+        print("Running generate_project_stages for:", project_description)
+        self.send_message(f"Generate project stages and agents for: {project_description}", role="user")
+        run_id = self.run_assistant()
+
+        print(f"ASSISTANT {self.name} RUNNING")
+
+        if self.wait_for_run_completion(run_id):
+            print("WAITING FOR RUN TO COMPLETE")
+            responses = self.get_all_responses()
+            for response in responses:
+                print("Response ID:", response.id)  # Debugging statement
+                if response.id not in self.processed_message_ids:
+                    print("Processing response:", response.content)  # Debugging statement
+                    #stages_and_agents = self.interpret_project_stages_response(response.content)
+                    self.interpret_project_stages_response(response.content)
+
+                    #  Save stages and agents to memory of Boss
+                    #  self.project_stages = stages_and_agents
+
+                    # Update processed message IDs to avoid reprocessing the same message
+                    self.processed_message_ids.append(response.id)
+                    break  # Once we have processed the response, we can exit the loop
+
+    def interpret_project_stages_response(self, response_content):
+        """
+        Interprets the response content to extract project stages and corresponding agents.
+        :param response_content: The content of the response from the Boss agent.
+        :return: A dictionary of project stages and their corresponding agents.
+        """
+        stages_and_agents = {}
+
+        # Ensure response_content is a list and not empty
+        try:
+            first_item = response_content[0]
+
+            # Check if first_item is an instance of MessageContentText and has a text attribute
+            if hasattr(first_item, 'text') and hasattr(first_item.text, 'value'):
+                response_text = first_item.text.value
+        except Exception as e:
+            logger.error(f"{e}")
+            raise ValueError
+
+        # Splitting the response by "Stage" which precedes each stage
+        stages = response_text.split("Stage ")[1:]  # Ensure proper splitting
+
+        for stage in stages:
+            lines = stage.split("\n")
+            if len(lines) >= 3:
+                # Extracting stage name, agent name, and instructions
+                stage_name = f"Stage {lines[0].strip()}"
+                agent_name = lines[1].split("**Agent:**")[1].strip()
+                instructions = lines[2].split("**Instructions:**")[1].strip()
+
+                # Print each extracted part for debugging
+                print(f"Stage Name: {stage_name}, Agent Name: {agent_name}, Instructions: {instructions}")
+
+                stages_and_agents[stage_name] = {"agent": agent_name, "instructions": instructions}
+
+        # Print the final dictionary before returning
+        print("Stages and Agents:", stages_and_agents)
+        return stages_and_agents
+
+    def manage_workflow(self, project_description):
+        for stage, task_description in project_description.items():
+            self.assign_task(task_description, stage)
+            all_tasks_completed = False
+
+            while not all_tasks_completed:
+                # Check for task completion from all agents
+                completed_tasks = []
+                for response in self.get_all_responses():
+                    task_desc = self.check_task_completion(response.content)
+                    if task_desc:
+                        completed_tasks.append(task_desc)
+
+                # Verify if all tasks for the stage are completed
+                all_tasks_completed = len(completed_tasks) == len(self.agent_registry)
+                if not all_tasks_completed:
+                    # Handle dependencies, adjustments, and agent coordination
+                    pass
+
+            logger.info(f"All tasks for stage '{stage}' completed.")
 
     def update_progress(self, stage, task, status):
         if stage not in self.stage_progress:
@@ -439,10 +601,11 @@ class BossAgent(AbstractAgent):
 
 
 class AgentFactory:
-    def create_agent(self, agent_type, name, instructions, model="gpt-4-1106-preview", code=False):
+    def create_agent(self, agent_type, name, instructions, model=MODEL, code=False):
         if agent_type == "boss":
             return BossAgent(name, instructions, model, code)
-        # Additional agent types...
+        elif agent_type == "assistant":
+            return AbstractAgent(name, instructions, model, code)
         else:
             raise ValueError("Unknown agent type")
 
@@ -476,8 +639,7 @@ def run_assistant(thread_id, assistant_id):
         thread_id=thread_id,
         assistant_id=assistant_id
     )
-    run_id = run_response.id  # Capture the run ID correctly
-    # print(f"Run initiated with ID: {run_id}")
+    run_id = run_response.id
     return run_id
 
 
@@ -624,29 +786,22 @@ def set_up_agent(factory, agent_role, agent_name, instructions):
 def main():
     agent_factory = AgentFactory()
 
-    agent_role = "boss"
-    agent_name = "Boss"
+    boss_agent_role = "boss"
+    boss_agent_name = "Boss"
 
-    boss_agent = set_up_agent(agent_factory, agent_role, agent_name, BOSS_INSTRUCTIONS)
+    boss_agent = set_up_agent(agent_factory, boss_agent_role, boss_agent_name, BOSS_INSTRUCTIONS)
 
-    task_description = "Please recommend only an agent for social media analytics. Write back only the name and instructions of the agent."
+    # processed_message_ids = []
+    # boss_agent.ask_boss_loop(boss_agent, processed_message_ids)
 
-    new_agent_name, new_agent_instructions = boss_agent.retrieve_agent_name_and_instructions_of_task(task_description)
-    if new_agent_name and new_agent_instructions:
-        print(f"Agent Name: {new_agent_name}")
-        print(f"Instructions: {new_agent_instructions}")
-    else:
-        print("Failed to parse agent information.")
+    # agents_for_task = boss_agent.manage_multiple_agents_task("book writing")
 
-    boss_prompt = "Boss, your goal is to develop a profitable business concept by leveraging the expertise of two other" \
-             " agents: Agent1 (Market Analyst) and Agent2 (Financial Planner)." \
-             " Your first task is to instruct Agent1 to conduct a thorough market analysis to identify high-potential" \
-             " business opportunities within our target market segments. Once the opportunities are identified, you" \
-             " will ask Agent2 to perform a financial feasibility analysis for the most promising ideas, examining" \
-             " startup costs, revenue projections, and profitability potential Ensure your instructions to both agents" \
-             " are detailed with a clear timeline, expectations for the deliverables, and necessary data points they" \
-             " will need. Establish a method for continuous communication and updates throughout the project. " \
-             "Begin your coordination by sending initial instructions to Agent1 to commence the market research."
+    '''for agent_name, instructions in agents_for_task.items():
+        print(f"Agent Name: {agent_name}\nInstructions: {instructions}\n")'''
+
+    boss_agent.generate_project_stages("book writing")
+
+    print("All generated Project Stages:", boss_agent.project_stages)
 
 
 if __name__ == "__main__":
