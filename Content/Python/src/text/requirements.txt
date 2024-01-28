@@ -8,4 +8,7 @@ langchain
 bs4
 selenium
 flask
-llama-cpp-python==0.1.65
+llama-cpp-python>=0.1.79
+pydantic
+httpx
+distro

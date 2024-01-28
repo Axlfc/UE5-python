@@ -1,12 +1,17 @@
 import sys
 from pathlib import Path
+
+# Obtén la ruta del directorio donde se encuentra el script actual
+current_script_path = Path(__file__).parent
+
+# Construye la ruta absoluta al directorio deseado basándote en la ubicación del script actual
+content_path = current_script_path.joinpath('../../../../../UE5-python').resolve()
+
+sys.path.append(str(content_path))
+
 from Content.Python_dependencies.latest_openai import openai
 
-
 def initialize_client():
-    content_path = Path('../../../../../UE5-python')
-    sys.path.append(str(content_path))
-
     # Point to the local server
     client = openai.OpenAI(base_url="http://localhost:1234/v1", api_key="not-needed")
     return client
@@ -29,10 +34,10 @@ def process_chat_completions(client, history):
     return new_message
 
 
-def main_chat_loop(client):
+def main_chat_loop(client, text_prompt):
     history = [
         {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
-        {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Be concise."},
+        {"role": "user", "content": text_prompt},
     ]
 
     while True:
@@ -54,5 +59,10 @@ def main_chat_loop(client):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python ai_assistant.py <user_input>")
+        sys.exit(1)
+
+    user_input = sys.argv[1]
     client = initialize_client()
-    main_chat_loop(client)
+    main_chat_loop(client, sys.argv[1])
