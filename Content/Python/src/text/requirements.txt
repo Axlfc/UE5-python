@@ -7,3 +7,5 @@ requests-html
 langchain
 bs4
 selenium
+flask
+llama-cpp-python==0.1.65

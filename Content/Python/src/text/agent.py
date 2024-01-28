@@ -5,11 +5,16 @@ import platform
 from datetime import datetime
 from pathlib import Path
 import json
+
+import requests
 import yaml
 import logging
 from dotenv import load_dotenv
 from abc import ABC, abstractmethod
 from File import File
+
+# Global flag to determine which model to use
+USE_OPENAI = True
 
 content_path = Path('../../../../../UE5-python')
 sys.path.append(str(content_path))
@@ -38,11 +43,11 @@ logger = logging.getLogger(__name__)
 # Load your OpenAI API key from .env file
 dotenv_path = Path('../bot/.env')
 load_dotenv(dotenv_path=dotenv_path)
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 class AbstractAgent(ABC):
-    def __init__(self, name, instructions, model=MODEL, code=False):
+    def __init__(self, name, instructions, model=MODEL, code=False, use_openai=True):
         self.name = name
         self.instructions = instructions
         self.model = model
@@ -51,11 +56,14 @@ class AbstractAgent(ABC):
         self.thread_id = self.create_thread()
         self.save_assistant_data()  # Save the data after both IDs are assigned
         self.processed_message_ids = []
+        self.use_openai = use_openai  # Flag to determine which model to use
 
     @abstractmethod
     def get_all_responses(self):
-        messages = client.beta.threads.messages.list(thread_id=self.thread_id)
-        return messages.data
+        print(f"Fetching simulated responses for thread {self.thread_id}")
+        #messages = client.beta.threads.messages.list(thread_id=self.thread_id)
+        #return messages.data
+        return [{"id": "mock_resp_id", "content": "Mock response content"}]
 
     @abstractmethod
     def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
@@ -66,7 +74,6 @@ class AbstractAgent(ABC):
                 run_id=run_id
             )
             if run_status.status == "completed":
-                print("Run completed")
                 return True
             elif run_status.status in ["failed", "cancelled", "expired"]:
                 return False
@@ -75,22 +82,42 @@ class AbstractAgent(ABC):
 
     @abstractmethod
     def run_assistant(self):
-        run_response = client.beta.threads.runs.create(
-            thread_id=self.thread_id,
-            assistant_id=self.assistant_id
-        )
-        return run_response.id
+        if self.use_openai:
+            # Existing OpenAI logic
+            print(f"Simulating running assistant for thread {self.thread_id} and assistant {self.assistant_id} with name {self.name}")
+            '''run_response = client.beta.threads.runs.create(
+                thread_id=self.thread_id,
+                assistant_id=self.assistant_id
+            )'''
+            #return run_response.id
+
+            return "mock_run_id_" + self.thread_id
+        else:
+            # Refactored logic for local server
+            # Assuming there is an endpoint /run_assistant or similar in your local setup
+            try:
+                response = requests.post(
+                    self.client["base_url"] + "/run_assistant",
+                    json={"thread_id": self.thread_id, "assistant_id": self.assistant_id},
+                    headers={"Authorization": f"Bearer {self.client['api_key']}"}
+                )
+                run_response = response.json()
+                return run_response.get("run_id", "mock_run_id")
+            except Exception as e:
+                logger.error(f"Error in run_assistant: {e}")
+                return "mock_run_id"
 
     @abstractmethod
     def send_message(self, content, role="user", recipient="assistant"):
-        print("SENDING MSG TO ", recipient)
-        message = client.beta.threads.messages.create(
+        print(f"Simulated sending message: '{content}' from {role} to {recipient} in thread {self.thread_id}")
+        '''message = client.beta.threads.messages.create(
             thread_id=self.thread_id,
             role=role,
             content=content
-        )
-        add_message(content, datetime.now().strftime("%m-%d-%Y_%H-%M-%S"), sender=role, recipient=recipient)
-        return message.id
+        )'''
+        #add_message(content, datetime.now().strftime("%m-%d-%Y_%H-%M-%S"), sender=role, recipient=recipient)
+        #return message.id
+        return "mock_message_id"
 
     @abstractmethod
     def load_assistant_data(self):
@@ -119,14 +146,22 @@ class AbstractAgent(ABC):
         if assistant_data and 'assistant_id' in assistant_data:
             return assistant_data['assistant_id']
         else:
-            tools = [{"type": "code_interpreter"}] if code else []
-            assistant = client.beta.assistants.create(
-                name=self.name,
-                instructions=self.instructions,
-                tools=tools,
-                model=self.model
-            )
-            self.assistant_id = assistant.id
+            if self.use_openai:
+                tools = [{"type": "code_interpreter"}] if code else []
+                try:
+                    assistant = client.beta.assistants.create(
+                        name=self.name,
+                        instructions=self.instructions,
+                        tools=tools,
+                        model=self.model
+                    )
+                    self.assistant_id = assistant.id
+                except Exception as e:
+                    logger.error(f"Error in create_assistant: {e}")
+                    return None
+            else:
+                # Skip OpenAI assistant creation for local agents
+                self.assistant_id = "mock_assistant_id_for_" + self.name
             return self.assistant_id
 
     @abstractmethod
@@ -221,11 +256,125 @@ class AbstractAgent(ABC):
             return None
 
 
+class OpenAIAgent(AbstractAgent):
+    def __init__(self, name, instructions, model=MODEL, code=False, use_openai=True):
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        super().__init__(name, instructions, model, code, use_openai)
+        self.assistant_id = self.create_assistant(code=code)
+        self.thread_id = self.create_thread()
+        self.save_assistant_data()
+
+
+class LocalAgent(AbstractAgent):
+    def __init__(self, name, instructions, model=MODEL, code=True, use_openai=False):
+        self.client = openai.OpenAI(base_url="http://localhost:1234/v1", api_key="not-needed")
+        super().__init__(name, instructions, model, code, use_openai)
+        self.assistant_id = self.create_assistant(code=code)
+        self.thread_id = self.create_thread()
+        self.save_assistant_data()
+
+    def process_input_alternative(self, input_data):
+        # Logic for processing input with the alternative model
+        if not self.use_openai:
+            try:
+                history = [
+                    {"role": "system", "content": "You are an intelligent assistant."},
+                    {"role": "user", "content": input_data}
+                ]
+
+                completion = self.client.chat.completions.create(
+                    model="local-model",  # Use the appropriate model name for the local server
+                    messages=history,
+                    temperature=0.7,
+                    stream=True,
+                )
+
+                new_message = {"role": "assistant", "content": ""}
+                for chunk in completion:
+                    if chunk.choices[0].delta.content:
+                        new_message["content"] += chunk.choices[0].delta.content
+
+                return new_message
+            except Exception as e:
+                logger.error(f"Error in process_input_alternative: {e}")
+                return {"error": str(e)}
+
+    def ask(self, initial_time, nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
+        return super().ask(initial_time, nombre_asistente, instrucciones_asistente)
+
+    def agent_to_agent_communication(self, initial_time, sender_agent, receiver_agent, message, processed_message_ids):
+        return super().agent_to_agent_communication(initial_time, sender_agent, receiver_agent, message,
+                                                    processed_message_ids)
+
+    def ask_user_loop(self, initial_time, thread_id, assistant_id, processed_message_ids):
+        return super().ask_user_loop(initial_time, thread_id, assistant_id, processed_message_ids)
+
+    def create_assistant(self, code=False):
+        return super().create_assistant(code)
+
+    def create_thread(self):
+        return super().create_thread()
+
+    def get_all_responses(self):
+        return super().get_all_responses()
+
+    def load_assistant_data(self):
+        return super().load_assistant_data()
+
+    def run_assistant(self):
+        return super().run_assistant()
+
+    def save_assistant_data(self):
+        return super().save_assistant_data()
+
+    def send_message(self, content, role="user", recipient="local"):
+        return super().send_message(content, role=role, recipient=recipient)
+
+    def setup_all_agents(self, agents_path):
+        return super().setup_all_agents(agents_path)
+
+    def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
+        return super().wait_for_run_completion(run_id, timeout)
+
+    def process_input(self, input_data):
+        # Implement the specific logic for processing input using the LocalAgent
+        try:
+            history = [
+                {"role": "system", "content": "You are an intelligent assistant."},
+                {"role": "user", "content": input_data}
+            ]
+
+            completion = self.client.chat.completions.create(
+                model=MODEL,  # Replace with the actual model name if necessary
+                messages=history,
+                temperature=0.7,
+                stream=True,
+            )
+
+            new_message = {"role": "assistant", "content": ""}
+            for chunk in completion:
+                if chunk.choices[0].delta.content:
+                    new_message["content"] += chunk.choices[0].delta.content
+
+            return new_message
+        except Exception as e:
+            logger.error(f"Error in process_input: {e}")
+            return {"error": str(e)}
+
+
 class BossAgent(AbstractAgent):
-    def __init__(self, name, instructions, model=MODEL, code=False):
-        super().__init__(name, instructions, model, code)
+    def __init__(self, name, instructions, model=MODEL, code=False, use_openai=True):
+        super().__init__(name, instructions, model, code, use_openai)
         # Project stages and respective agent mappings
-        self.project_stages = {}
+        #self.project_stages = {}
+        #self.project_stages = {'Stage 1: Idea Generation and Conceptualization': {'agent': 'Creative Consultant', 'instructions': "Assist with brainstorming initial concepts, defining the book's genre, and formulating the core message or theme."}, 'Stage 2: Detailed Research': {'agent': 'Research Specialist', 'instructions': "Conduct in-depth research to provide a strong factual foundation for the book's content, including interviews, archival research, and data collection."}, 'Stage 3: Outline and Structure Development': {'agent': 'Plot Strategist', 'instructions': 'Help create a detailed chapter outline, define plot structure, and plan character development to guide the manuscript writing process.'}, 'Stage 4: Writing the First Draft': {'agent': 'Writing Coach', 'instructions': "Provide support in drafting the manuscript, helping to maintain writing discipline and idea flow, and overcoming writer's block."}, 'Stage 5: Revisions and Developmental Editing': {'agent': 'Developmental Editor', 'instructions': 'Review the first draft for improvements in story structure, pacing, character arcs, and narrative consistency, offering substantial editorial feedback.'}, 'Stage 6: Refinement and Copyediting': {'agent': 'Copy Editor', 'instructions': 'Perform sentence-level editing to improve readability, correct grammar, and ensure style consistency across the manuscript.'}, 'Stage 7: Proofreading': {'agent': 'Proofreading Expert', 'instructions': 'Conduct a final meticulous review of the manuscript to catch any typos, spelling errors, and formatting inconsistencies before publishing.'}, 'Stage 8: Book Design and Production': {'agent': 'Book Designer', 'instructions': 'Design the book cover, develop interior formatting, and prepare the manuscript for print and digital publishing platforms.'}, 'Stage 9: Marketing and Promotion': {'agent': 'Marketing Manager', 'instructions': 'Create and implement a marketing plan that includes pre-launch buzz-building, launch strategy, and post-launch promotion to reach the target audience.'}, 'Stage 10: Publication': {'agent': 'Publishing Advisor', 'instructions': 'Guide through the selection of publishing options, such as traditional, independent, or self-publishing, including navigating distribution channels and platforms.'}, 'Stage 11: Post-Publication Support and Engagement': {'agent': 'Community Relations Specialist', 'instructions': "Manage the book's post-release presence, including reader engagement, social media interaction, book tours, and speaking engagements."}}
+        self.project_stages = {'Stage 1: Idea Generation and Conceptualization': {
+            'agent': 'Creative Consultant',
+            'instructions': "Assist with brainstorming initial concepts, defining the book's genre, and formulating the core message or theme."},
+            'Stage 2: Detailed Research': {
+                'agent': 'Research Specialist',
+                'instructions': "Conduct in-depth research to provide a strong factual foundation for the book's content, including interviews, archival research, and data collection."
+            }}
         # Maintain the status of the current project
         self.current_project = None
         self.current_stage = None
@@ -233,8 +382,39 @@ class BossAgent(AbstractAgent):
         self.stage_progress = {}
         self.agent_registry = {}
 
-    def get_all_responses(self):
-        return super().get_all_responses()
+    def ask(self, initial_time, nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
+        return super().ask(initial_time, nombre_asistente, instrucciones_asistente)
+
+    def ask_user_loop(self, initial_time, thread_id, assistant_id, processed_message_ids):
+        return super().ask_user_loop(initial_time, thread_id, assistant_id, processed_message_ids)
+
+    def ask_boss_loop(self, boss_agent, processed_message_ids):
+        initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+        while True:
+            user_input = input("Enter your question (or type 'exit' to quit): ")
+            if user_input.lower() == 'exit':
+                break
+
+            boss_agent.send_message(user_input)
+            run_id = boss_agent.run_assistant()
+            if boss_agent.wait_for_run_completion(run_id):
+                responses = boss_agent.get_all_responses()
+                for response in responses:
+                    # Process and display response
+                    content = extract_value_from_response(response.content)
+                    if content != CONTENT_NOT_FOUND:
+                        processed_message_ids.append(response.id)
+                        first_line_of_content = content.split("\n")[0]
+                        add_message("Boss: " + first_line_of_content,
+                                         initial_time)  # Registrar respuesta del asistente
+                        print(first_line_of_content)
+                        break  # Salir del ciclo una vez que se ha mostrado la última respuesta
+            else:
+                print("Run did not complete successfully.")
+
+    def agent_to_agent_communication(self, initial_time, sender_agent, receiver_agent, message, processed_message_ids):
+        return super().agent_to_agent_communication(initial_time, sender_agent, receiver_agent, message,
+                                                    processed_message_ids)
 
     def wait_for_run_completion(self, run_id, timeout=DEFAULT_TIMEOUT):
         return super().wait_for_run_completion(run_id, timeout)
@@ -257,18 +437,8 @@ class BossAgent(AbstractAgent):
     def setup_all_agents(self, agents_path):
         return super().setup_all_agents(agents_path)
 
-    def ask(self, initial_time, nombre_asistente, instrucciones_asistente=DEFAULT_INSTRUCTIONS):
-        return super().ask(initial_time, nombre_asistente, instrucciones_asistente)
-
     def create_thread(self):
         return super().create_thread()
-
-    def ask_user_loop(self, initial_time, thread_id, assistant_id, processed_message_ids):
-        return super().ask_user_loop(initial_time, thread_id, assistant_id, processed_message_ids)
-
-    def agent_to_agent_communication(self, initial_time, sender_agent, receiver_agent, message, processed_message_ids):
-        return super().agent_to_agent_communication(initial_time, sender_agent, receiver_agent, message,
-                                                    processed_message_ids)
 
     def parse_agent_info(self, task_description):
         boss_response = self.recommend_agent_for_task(task_description)
@@ -302,6 +472,9 @@ class BossAgent(AbstractAgent):
                 # Assuming the response content is a string with the agent's name
                 return extract_value_from_response(response.content)
         return None  # or some default value or error handling
+
+    def get_all_responses(self):
+        return super().get_all_responses()
 
     def retrieve_single_agent_name_and_instructions_of_task(self, task):
         task_description = "Please recommend only an agent for " + task +". Write back only the name and context instructions of the agent."
@@ -374,30 +547,6 @@ class BossAgent(AbstractAgent):
             # Send instructions to the agent and handle their responses
         return agents
 
-    def ask_boss_loop(self, boss_agent, processed_message_ids):
-        initial_time = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
-        while True:
-            user_input = input("Enter your question (or type 'exit' to quit): ")
-            if user_input.lower() == 'exit':
-                break
-
-            boss_agent.send_message(user_input)
-            run_id = boss_agent.run_assistant()
-            if boss_agent.wait_for_run_completion(run_id):
-                responses = boss_agent.get_all_responses()
-                for response in responses:
-                    # Process and display response
-                    content = extract_value_from_response(response.content)
-                    if content != CONTENT_NOT_FOUND:
-                        processed_message_ids.append(response.id)
-                        first_line_of_content = content.split("\n")[0]
-                        add_message("Boss: " + first_line_of_content,
-                                         initial_time)  # Registrar respuesta del asistente
-                        print(first_line_of_content)
-                        break  # Salir del ciclo una vez que se ha mostrado la última respuesta
-            else:
-                print("Run did not complete successfully.")
-
     def select_agent_for_stage(self, stage):
         # Logic to select the most suitable agent based on the current stage
         agent_candidates = self.project_stages.get(stage, [])
@@ -429,6 +578,7 @@ class BossAgent(AbstractAgent):
         for agent_name, instructions in agents_info:
             if agent_name not in self.agent_registry:
                 # Instantiate and store the agent if it doesn't exist
+                #  TODO: store or ask boss about agent_name instructions
                 new_agent = AbstractAgent(agent_name, instructions, code=True)
                 self.agent_registry[agent_name] = new_agent
                 logger.info(f"Instantiated agent: {agent_name}")
@@ -441,23 +591,55 @@ class BossAgent(AbstractAgent):
         return instantiated_agents
 
     def assign_task(self, task_description, stage):
-        # Instantiate agents for the given task
+        print(f"Assigning task '{task_description}' for stage '{stage}'")
+        '''# Instantiate agents for the given task
         agents = self.instantiate_agents_for_task(stage)
 
         if len(agents) == 1:
             # Assign task to the single agent
             agent_name = next(iter(agents))
-            agents[agent_name].send_message(f"Task Assignment: {task_description}", role="boss")
+            agents[agent_name].send_message(f"Task Assignment: {task_description} (Write finished task when finished: [task_name]", role="boss")
             logger.info(f"Assigned task '{task_description}' to {agent_name}")
         else:
             # Assign tasks to multiple agents and specify inter-agent communication if needed
             for agent_name, agent in agents.items():
                 # Assign task
-                agent.send_message(f"Task Assignment for {stage}: {task_description}", role="boss")
+                agent.send_message(f"Task Assignment for {stage}: {task_description}", role="assistant")
                 # Inform about necessary communication with other agents
                 other_agents = [name for name in agents if name != agent_name]
-                agent.send_message(f"Coordinate with: {', '.join(other_agents)}", role="boss")
-                logger.info(f"Assigned task '{task_description}' to {agent_name} with coordination instructions")
+                agent.send_message(f"Coordinate with: {', '.join(other_agents)}", role="assistant")
+                logger.info(f"Assigned task '{task_description}' to {agent_name} with coordination instructions")'''
+
+    def get_agent_description(self, agent_name, yml_file=AGENTS_FILENAME):
+        """Retrieve the description for a given agent from the YAML file."""
+        with open(yml_file, "r") as file:
+            agents_data = yaml.safe_load(file)
+            for agent in agents_data.get("agents", []):
+                if agent["name"] == agent_name:
+                    return agent.get("instructions", "No description available.")
+        return "Agent not found."
+
+    def get_or_request_agent_description(self, agent_name):
+        # Step 1: Check for existing description
+        description = self.get_agent_description(agent_name)
+        if description not in ["Agent not found.", "No description available."]:
+            return description
+
+        # Step 2: Request description from the 'Boss' agent
+        print(f"Requesting description for a new agent: {agent_name}")
+        self.send_message(f"Please provide a description for a new agent named {agent_name}.")
+        run_id = self.run_assistant()
+
+        if self.wait_for_run_completion(run_id):
+            responses = self.get_all_responses()
+            for response in responses:
+                if response.role == "assistant":
+                    new_description = extract_value_from_response(response.content)
+                    # Step 3: Save the new description
+                    update_agents_yaml(AGENTS_FILENAME, agent_name, new_description)
+                    return new_description
+
+        return "Failed to obtain a description from the Boss agent."
 
     def generate_project_stages(self, project_description):
         """
@@ -479,11 +661,11 @@ class BossAgent(AbstractAgent):
                 print("Response ID:", response.id)  # Debugging statement
                 if response.id not in self.processed_message_ids:
                     print("Processing response:", response.content)  # Debugging statement
-                    #stages_and_agents = self.interpret_project_stages_response(response.content)
-                    self.interpret_project_stages_response(response.content)
+                    stages_and_agents = self.interpret_project_stages_response(response.content)
+                    #  self.interpret_project_stages_response(response.content)
 
                     #  Save stages and agents to memory of Boss
-                    #  self.project_stages = stages_and_agents
+                    self.project_stages = stages_and_agents
 
                     # Update processed message IDs to avoid reprocessing the same message
                     self.processed_message_ids.append(response.id)
@@ -561,8 +743,10 @@ class BossAgent(AbstractAgent):
         return None
 
     def manage_stage(self, stage, instructions):
+        print(f"Managing stage: {stage} with instructions: {instructions}")
+
         # Manage a particular stage of the project
-        agent_name = self.select_agent_for_stage(stage)
+        '''agent_name = self.select_agent_for_stage(stage)
         if not agent_name:
             print(f"No agent found for stage: {stage}")
             return None
@@ -580,11 +764,33 @@ class BossAgent(AbstractAgent):
             return final_report
         else:
             print(f"Stage {stage} did not complete successfully.")
-            return None
+            return None'''
+
+    def simulate_project_stages(self):
+        for stage, stage_info in self.project_stages.items():
+            agent_name = stage_info['agent']
+            instructions = stage_info['instructions']
+            print(f"\nStage: {stage}")
+            print(f"Agent: {agent_name}")
+            print(f"Instructions: {instructions}")
+
+            # Simulate sending task to agent
+            self.assign_task(instructions, stage)
+            # Wait for completion or simulate response
+            # This part can be expanded based on how you manage agent responses
+            print(f"Task for {stage} assigned to {agent_name}.")
+
+            # Check for task completion (you can implement this as per your system's logic)
+            if self.check_task_completion(stage):
+                print(f"Task for {stage} completed by {agent_name}.")
+            else:
+                print(f"Task for {stage} is still ongoing.")
 
     def run_project(self, project_description):
+        print(f"Starting project: {project_description}")
+
         # Start a new project
-        self.current_project = project_description
+        '''self.current_project = project_description
         print(f"Starting project: {project_description}")
 
         # Iterate over each stage in the project
@@ -597,15 +803,20 @@ class BossAgent(AbstractAgent):
                 print(f"Stage {stage} failed or incomplete.")
                 break  # Exit if any stage fails
 
-        print("Project completed")
+        print("Project completed")'''
 
 
 class AgentFactory:
-    def create_agent(self, agent_type, name, instructions, model=MODEL, code=False):
-        if agent_type == "boss":
-            return BossAgent(name, instructions, model, code)
-        elif agent_type == "assistant":
-            return AbstractAgent(name, instructions, model, code)
+    def create_agent(self, agent_type, name, instructions, model=MODEL, code=False, use_openai=True):
+        if agent_type == "local":
+            print("CREATING LOCAL AGENT")
+            return LocalAgent(name, instructions, model, code, use_openai)
+        elif agent_type == "boss":
+            return BossAgent(name, instructions, model, code, use_openai)
+        # TODO: elif agent_type == "assistant":
+            # return AbstractAgent(name, instructions, model, code, use_openai)
+        elif agent_type == "openai":
+            return OpenAIAgent(name, instructions, model, code)
         else:
             raise ValueError("Unknown agent type")
 
@@ -685,15 +896,15 @@ def extract_value_from_response(response):
     return extracted_content.split("\n")[0]
 
 
-def update_agents_yaml(yml_file, assistant_name, instructions):
+def update_agents_yaml(yml_file, agent_name, instructions):
     # Read existing agents
     with open(yml_file, 'r') as file:
         agents_data = yaml.safe_load(file) or {'agents': []}
 
     # Append new agent if it doesn't already exist
-    if not any(agent['name'] == assistant_name for agent in agents_data['agents']):
+    if not any(agent['name'] == agent_name for agent in agents_data['agents']):
         new_agent = {
-            'name': assistant_name,
+            'name': agent_name,
             'instructions': instructions
         }
         agents_data['agents'].append(new_agent)
@@ -759,49 +970,80 @@ def check_conversations():
         os.mkdir(repo_dir)
 
 
-def simulate_project_stages(boss_agent):
-    sample_project = {
-        "Idea Generation": "Generate innovative business ideas.",
-        "Market Analysis": "Analyze the market for potential opportunities.",
-        "Feasibility Study": "Conduct a feasibility study for the best ideas.",
-        "Planning": "Plan the implementation of the selected idea."
-    }
-
-    for stage, description in sample_project.items():
-        print(f"\nStage: {stage}")
-        print(f"Description: {description}")
-        selected_agents = boss_agent.select_agent_for_stage(stage)
-        if selected_agents:
-            print("Selected Agents for this stage:")
-            for agent in selected_agents:
-                print(f" - {agent}")
-        else:
-            print("No agents found for this stage.")
-
-
-def set_up_agent(factory, agent_role, agent_name, instructions):
-    return factory.create_agent(agent_role, agent_name, instructions)
+def set_up_agent(factory, agent_role, agent_name, instructions, use_openai=True):
+    return factory.create_agent(agent_role, agent_name, instructions, use_openai)
 
 
 def main():
     agent_factory = AgentFactory()
 
-    boss_agent_role = "boss"
-    boss_agent_name = "Boss"
+    #  boss_agent_role = "boss"
+    #  boss_agent_name = "Boss"
 
-    boss_agent = set_up_agent(agent_factory, boss_agent_role, boss_agent_name, BOSS_INSTRUCTIONS)
+    #  boss_agent = set_up_agent(agent_factory, boss_agent_role, boss_agent_name, BOSS_INSTRUCTIONS, use_openai=True)
 
-    # processed_message_ids = []
-    # boss_agent.ask_boss_loop(boss_agent, processed_message_ids)
+    #  processed_message_ids = []
+    #  boss_agent.ask_boss_loop(boss_agent, processed_message_ids)
 
     # agents_for_task = boss_agent.manage_multiple_agents_task("book writing")
 
     '''for agent_name, instructions in agents_for_task.items():
         print(f"Agent Name: {agent_name}\nInstructions: {instructions}\n")'''
 
-    boss_agent.generate_project_stages("book writing")
+    #  boss_agent.generate_project_stages("book writing")
 
-    print("All generated Project Stages:", boss_agent.project_stages)
+    #  boss_agent.simulate_project_stages()
+
+    # Example: Creating an agent that uses a non-OpenAI model
+    alternative_agent = set_up_agent(agent_factory, "local", "Wizard", DEFAULT_INSTRUCTIONS, False)
+
+    main_chat_loop(alternative_agent.client)
+
+    # Process input (can be text or a file path)
+    # input_data = "text.txt"  # or some text input
+    # response = alternative_agent.process_input(input_data)
+    # print(response)
+
+
+def main_chat_loop(client):
+    history = [
+        {"role": "system", "content": DEFAULT_INSTRUCTIONS},
+        {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Be concise."},
+    ]
+
+    while True:
+        new_message = process_chat_completions(client, history)
+        history.append(new_message)
+
+        # Uncomment to see chat history
+        # import json
+        # gray_color = "\033[90m"
+        # reset_color = "\033[0m"
+        # print(f"{gray_color}\n{'-'*20} History dump {'-'*20}\n")
+        # print(json.dumps(history, indent=2))
+        # print(f"\n{'-'*55}\n{reset_color}")
+
+        print()
+        user_input = input("> ")
+        if user_input.strip():
+            history.append({"role": "user", "content": user_input})
+
+
+def process_chat_completions(client, history):
+    completion = client.chat.completions.create(
+        model="local-model",  # this field is currently unused
+        messages=history,
+        temperature=0.7,
+        stream=True,
+    )
+
+    new_message = {"role": "assistant", "content": ""}
+    for chunk in completion:
+        if chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end="", flush=True)
+            new_message["content"] += chunk.choices[0].delta.content
+
+    return new_message
 
 
 if __name__ == "__main__":
